@@ -63,7 +63,6 @@ table tr:nth-child(even) {
 background: #eeeded;
 }
 table a:hover {
-    padding: 1px;
     background-color: #5b5b5b;
     border-radius: 5px;
 }
