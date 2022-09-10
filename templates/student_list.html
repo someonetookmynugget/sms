@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>成績一覧</title>
+  <link href="static/test.css" rel="stylesheet">
+</head>
+<body>
+        <div class="content">
+        
+              <header>
+                      <h1>成績一覧</h1>
+                      <h3 style="color: red;">{{ params.msg }}</h3>
+                      
+                      <form action="/add_test" methods="POST">
+                                <input type="submit" value="テスト項目を追加">
+                      </form>
+
+                      <form action="/delete_test" methods="POST">
+                                <input type="submit" value="テスト項目を削除">
+                      </form>
+
+              </header>
+              
+              
+              <table>
+                <div class="titles">
+                          <tr>
+                        <th>学生番号</th>
+                        <th>名前</th>
+                        {% for key, value in params.test_names.items() %}
+                        <th>{{ value }}</th>
+                        {% endfor %}
+                        <th>出席率</th>
+                        <th>評価備考</th>
+                        <td><a href="#edit_test_names">テストの名前を編集</a></td>
+                        </tr>
+              </div >
+            
+          
+                <div class="info">
+                        {% for student in params.students %}
+                        <tr>
+                        
+                              <td><a href="/view_profile/{{ student.id }}">{{ student.id }}</a></td>
+                              <td>{{ student.name }}</td>
+                        
+                        {% for key, value in student.test.items() %}
+                        
+                              <td>{{value}}</td>
+                        
+                        {% endfor %}
+                              <td></td>
+                              <td>{{ student.note }}</td>
+                              <td><a href="#{{student.name}}">この生徒の点数を入力</a></td>
+                        </tr>
+                </div>
+
+                <div class="edit">
+                        <dialog id="edit_test_names">
+                                <form action="/edit_test_name" method="POST">
+                                        <h2>テスト名の編集</h2>
+                                        {% for key, value in params.test_names.items() %}
+                                        <label> {{ key }} </label>
+                                        <input type="text" name="{{key}}_name" value="{{value}}">
+                                        {% endfor %}
+                                        <input type="submit" value="保存">
+                                </form>
+                          <a href="#1">閉じる</a>
+                        </dialog>
+
+                        <dialog id="{{student.name}}">
+                          <form action="/edit_score" method="POST">
+                                <h2>{{student.name}}の成績を入力</h2>
+                                <input type="hidden" name="id" value="{{student.id}}">
+
+                                {% for key, value in student.test.items() %}
+                                {% for key2, value2 in params.test_names.items() %}
+                                {% if key == key2 %}
+                                <label>{{value2}}</label>
+                                {% endif %}
+                                {% endfor %}
+                                    <input type="text" name="{{key}}" value="{{value}}">
+                                {% endfor %}
+                                <label>評価備考</label>
+                                <textarea type="text" name="note" value="{{ student.note }}"></textarea>
+                                <input type="submit" value="保存">
+                          </form>
+                          <a href="#1">閉じる</a>
+                        </dialog>
+                </div>    
+                {% endfor %}
+                </table>
+        </div>
+</body>
+</html>
