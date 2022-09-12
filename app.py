@@ -1,14 +1,22 @@
 
-from logging import exception
-import profile
+from datetime import datetime
+import datetime#DBあったらいらないかも？
 import psycopg2.extras
-import re 
-from werkzeug.security import generate_password_hash, check_password_hash
+from io import BytesIO
+from matplotlib.backends.backend_agg import FigureCanvasAgg
+from matplotlib.figure import Figure
+import matplotlib.pyplot as plt
 
+import random
+import numpy as np
 from flask import Flask,render_template, request, redirect, url_for #pip install flask
 
 import psycopg2 #pip install psycopg2
 
+t_delta = datetime.timedelta(hours=9)
+JST = datetime.timezone(t_delta, 'JST')
+now = datetime.datetime.now(JST)
+d = now.strftime('%Y-%m-%d')
 
 app = Flask(__name__)
 connection = psycopg2.connect(host='localhost',
@@ -22,7 +30,7 @@ session = {"loggedin": None,
 
 @app.route('/register', methods=["GET", "POST"])
 def register():
-    if session["loggedin"] == True:
+    # if session["loggedin"] == True:
         if request.method=="GET":
             params = {
                 "msg": ""
@@ -66,7 +74,7 @@ def register():
                 connection.commit()
             cursor.close()
         return render_template('register_complete.html')
-    return redirect(url_for("login"))
+    # return redirect(url_for("login"))
 @app.route("/")
 def access():
     return redirect(url_for("login"))
@@ -116,10 +124,22 @@ def login():
 
 
 students = [
-            {"id":"2004230011", "name":"西結都","test":{"test1": ""},"note":""},
-            {"id":"2222222222", "name":"古賀慶次郎","test":{"test1": ""},"note":""},
-            {"id":"3333333333", "name":"中村太一","test":{"test1": ""},"note":""},
+            {"id":"2004230011", "name":"西結都","test":{"test1": ""},"note":"", "date":{"2022-09-01":"attend","2022-09-02":"attend","2022-09-03":"attend","2022-09-04":"attend","2022-09-05":"absence"},"rate":"","rate_history":{"1":"100", "2":"100","3":"66.7","4":"75",}},
+            {"id":"2222222222", "name":"古賀慶次郎","test":{"test1": ""},"note":"", "date":{"2022-09-01":"absence","2022-09-02":"attend","2022-09-03":"attend","2022-09-04":"absence","2022-09-05":"attend"},"rate":"","rate_history":{"1":"100", "2":"100","3":"66.7","4":"75",}},
+            {"id":"3333333333", "name":"中村太一","test":{"test1": ""},"note":"", "date":{"2022-09-01":"absence","2022-09-02":"attend","2022-09-03":"absence","2022-09-04":"absence","2022-09-05":"absence"},"rate":"","rate_history":{"1":"0", "2":"50","3":"66.7","4":"75",}},
             ]
+#### test
+for student in students:
+    attend = 0
+    total = len(student["date"])
+    for key, value in student["date"].items():
+        if value=="attend":
+            attend += 1
+    student["rate"] = str(round(attend / total * 100, 1))
+    student["rate_history"][f'{len(student["date"])}'] = student["rate"]
+    
+
+
 
 test_names = {
     "test1": "test1"
@@ -234,17 +254,37 @@ def edit_test_name():
         }             
         return render_template("student_list.html", params=params)        
     return redirect(url_for("login"))
-    
+
+
+    #### test
+fig = plt.figure()
+ax1 = fig.add_subplot(1,1,1)
+x = np.arange(0, len(student["date"]), 0.1)
+y = x**2
+
 @app.route("/view_profile/<student_id>",methods=["GET","POST"])
 def view_profile(student_id):
     if session["loggedin"] == True: 
         if request.method=="GET":
-            ######
+            plt.cla()
+            fig.suptitle("title", fontsize="24")
+
+            ax1.set_title("test")
+            ax1.grid()
+            ax1.set_xlabel('x',fontsize=16)
+            ax1.set_ylabel('y1',fontsize=16)
+            ax1.plot(x, y)
+            
+            canvas = FigureCanvasAgg(fig)
+            png_output = BytesIO()
+            canvas.print_png(png_output)
+            data = png_output.getvalue()
             for student in students:
                 if student["id"] == student_id:
                     print("a")
                     params = {
-                         "student": student
+                         "student": student,
+                         "image": data
                     }
                     return render_template("student_detail.html", params=params)
         if request.method=="POST":    
