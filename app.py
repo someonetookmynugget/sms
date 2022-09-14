@@ -256,11 +256,10 @@ def edit_test_name():
     return redirect(url_for("login"))
 
 
-    #### test
 fig = plt.figure()
 ax1 = fig.add_subplot(1,1,1)
 x = np.arange(0, len(student["date"]), 0.1)
-y = x**2
+y = np.arange(0, 100, 0.1)
 
 @app.route("/view_profile/<student_id>",methods=["GET","POST"])
 def view_profile(student_id):
