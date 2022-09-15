@@ -10,11 +10,13 @@
     <img src="/static/student_images/user.png" alt="" title="">
     {{ params.student.id }}
     {{ params.student.name }}
-    {{ params.data }}
-    <form action="#" method="POST">
+    <img src="/{{ params.image }}" />
+    {% for testkey, testname in params.test_names.items() %}
+    <form action="/view_profile/{{ params.student.id }}"  methods="POST">
 
-
-    </form>
+      <input type="submit" value="{{ testname }}" name="{{ testkey }}">
+    {% endfor %}
+</form>
 </body>
 </html>
 

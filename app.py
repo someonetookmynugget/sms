@@ -2,17 +2,17 @@
 from datetime import datetime
 import datetime#DBあったらいらないかも？
 import psycopg2.extras
-from io import BytesIO
-from matplotlib.backends.backend_agg import FigureCanvasAgg
 from matplotlib.figure import Figure
 import matplotlib.pyplot as plt
-
-import random
+from matplotlib.backends.backend_agg import FigureCanvasAgg
+import pandas as pd
 import numpy as np
-from flask import Flask,render_template, request, redirect, url_for #pip install flask
+from flask import Flask,render_template, request, redirect, url_for ,make_response
+#pip install flask
 
 import psycopg2 #pip install psycopg2
 
+# DBに日付を追加するときのため
 t_delta = datetime.timedelta(hours=9)
 JST = datetime.timezone(t_delta, 'JST')
 now = datetime.datetime.now(JST)
@@ -23,6 +23,8 @@ connection = psycopg2.connect(host='localhost',
                              user='postgres',
                              password='apple2224',
                              database='testdb')
+
+# ログイン認証
 session = {"loggedin": None,
             "username": "",
             "user_id": ""
@@ -32,11 +34,13 @@ session = {"loggedin": None,
 def register():
     # if session["loggedin"] == True:
         if request.method=="GET":
+            # パラメータの設定
             params = {
                 "msg": ""
             }
             return render_template("form.html",params=params)
         elif request.method=="POST":
+            # パラメータの設定
             params = {
                 "msg": ""
             }
@@ -82,30 +86,37 @@ def access():
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method=="GET":
+        # パラメータの設定
         params = {
             "msg": ""
         }
         return render_template("login.html", params=params)
     elif request.method=="POST":
+        # パラメータの設定
         params = {
             "ID": request.form["ID"],
             "password": request.form["password"],
             "msg": "ログインが完了しました"
         }
+        # データベースに接続
         with connection:
             with connection.cursor() as cursor:
                 try:
+                    # データベースから値を選択
                     cursor.execute("select * from users where id = %s and password = %s", (params["ID"], params["password"],))
                     rows = cursor.fetchall()
 
                     try:
                         id = rows[0][0]
                         password = rows[0][1]
+                        # IDとPASSWORDが一致した場合
                         if id == int(params["ID"]) and password == params["password"]:
+                            # ログイン認証
                             session["loggedin"] = True
                             session["username"] = "DBについかする"
                             session["user_id"] = id
                             return render_template("index.html", params=params)  
+                            # ID, password が6文字と４文字以外の場合
                         elif len(id) != 6 or len(password) != 4: 
                             params["msg"] = "IDかパスワードのどちらかが間違っています"
                             return render_template("login.html", params=params)
@@ -124,9 +135,9 @@ def login():
 
 
 students = [
-            {"id":"2004230011", "name":"西結都","test":{"test1": ""},"note":"", "date":{"2022-09-01":"attend","2022-09-02":"attend","2022-09-03":"attend","2022-09-04":"attend","2022-09-05":"absence"},"rate":"","rate_history":{"1":"100", "2":"100","3":"66.7","4":"75",}},
-            {"id":"2222222222", "name":"古賀慶次郎","test":{"test1": ""},"note":"", "date":{"2022-09-01":"absence","2022-09-02":"attend","2022-09-03":"attend","2022-09-04":"absence","2022-09-05":"attend"},"rate":"","rate_history":{"1":"100", "2":"100","3":"66.7","4":"75",}},
-            {"id":"3333333333", "name":"中村太一","test":{"test1": ""},"note":"", "date":{"2022-09-01":"absence","2022-09-02":"attend","2022-09-03":"absence","2022-09-04":"absence","2022-09-05":"absence"},"rate":"","rate_history":{"1":"0", "2":"50","3":"66.7","4":"75",}},
+            {"id":"2004230011", "name":"西結都","test":{"test1": ""},"note":"", "date":{"2022-09-01":"attend","2022-09-02":"attend","2022-09-03":"absence","2022-09-04":"attend","2022-09-05":"attend"},"rate":"","rate_history":{"2022-09-01":100, "2022-09-02":100,"2022-09-03":66.7,"2022-09-04":75,}},
+            {"id":"2222222222", "name":"古賀慶次郎","test":{"test1": ""},"note":"", "date":{"2022-09-01":"absence","2022-09-02":"attend","2022-09-03":"attend","2022-09-04":"absence","2022-09-05":"attend"},"rate":"","rate_history":{"2022-09-01":100, "2022-09-02":100,"2022-09-03":66.7,"2022-09-04":75,}},
+            {"id":"3333333333", "name":"中村太一","test":{"test1": ""},"note":"", "date":{"2022-09-01":"absence","2022-09-02":"attend","2022-09-03":"absence","2022-09-04":"absence","2022-09-05":"absence"},"rate":"","rate_history":{"2022-09-01":0, "2022-09-02":50,"2022-09-03":66.7,"2022-09-04":75,}},
             ]
 #### test
 for student in students:
@@ -135,8 +146,9 @@ for student in students:
     for key, value in student["date"].items():
         if value=="attend":
             attend += 1
-    student["rate"] = str(round(attend / total * 100, 1))
-    student["rate_history"][f'{len(student["date"])}'] = student["rate"]
+        last_key_name = key
+    student["rate"] = round(attend / total * 100, 1)
+    student["rate_history"][f'{last_key_name}'] = student["rate"]
     
 
 
@@ -159,6 +171,7 @@ def student_list():
         if request.method=="GET":
             msg = ""
             ##############
+            # パラメータの設定
             params = {
                 "students": students,#データベースからもってくる
                 "test_names": test_names,
@@ -173,10 +186,13 @@ def add_test():
         if request.method=="GET":
             #############
             for student in students:
+                #　生徒にテスト項目を追加
                 student["test"][f"test{len(student['test'])+1}"] = ""
+                # test_namesにテスト項目を追加
                 test_names[f"test{len(student['test'])}"] = "test"+str(len(student["test"]))
                 print(test_names)
                 msg=""
+                # パラメータの設定
                 params = {
                     "students" : students,
                     "test_names": test_names,
@@ -194,13 +210,17 @@ def delete_test():
             #############
             for student in students:
                 try:
+                    #　最後に追加されたテスト項目を削除
                     student["test"].popitem()
                 except KeyError:
+                    #　消せるテスト項目がなかった場合
                     msg = "消せるテスト項目がありません"
-            try:        
+            try: 
+                # テスト項目の名前も削除       
                 test_names.popitem()
             except KeyError:
                 pass
+            # パラメータの設定
             params = {
                 "students" : students,
                 "test_names": test_names,
@@ -217,13 +237,16 @@ def edit_score():
         if request.method=="POST":
             ###########
             for student in students:
+                # 選択した学生と一致した場合
                 if student["id"] == request.form["id"]:
                     for i in range(1, len(student["test"])+1):
-                        print(request.form.get(f"test{i}"))
+                        # 選択した学生のテストの点数を入れる
                         student["test"][f"test{i}"] = request.form.get(f"test{i}")
+                    # 備考追加
                     student["note"] = request.form["note"]    
                     break
             #dbにinsert
+            # パラメータの設定
             params = {
                 "students": students,
                 "test_names": test_names,
@@ -237,9 +260,11 @@ def edit_test_name():
     msg = ""
     if session["loggedin"] == True:
         if request.method=="POST":
-            ########
+            #　テストテーブルの個数分回して新しいテストカラムをつくる
             for i in range(1, len(students[0]["test"])+1):
+                # テスト名の文字数制限
                 if len(request.form[f"test{i}_name"]) <= 20:
+                    # テスト名の変更
                     test_names[f"test{i}"] = request.form[f"test{i}_name"]
 
                 else:
@@ -247,6 +272,7 @@ def edit_test_name():
        
         #dbにinsert
         print(test_names["test1"])
+        # パラメータの設定
         params = {
             "students": students,
             "test_names": test_names,
@@ -256,39 +282,62 @@ def edit_test_name():
     return redirect(url_for("login"))
 
 
-fig = plt.figure()
-ax1 = fig.add_subplot(1,1,1)
-x = np.arange(0, len(student["date"]), 0.1)
-y = np.arange(0, 100, 0.1)
 
 @app.route("/view_profile/<student_id>",methods=["GET","POST"])
 def view_profile(student_id):
-    if session["loggedin"] == True: 
+    # if session["loggedin"] == True: 
         if request.method=="GET":
-            plt.cla()
-            fig.suptitle("title", fontsize="24")
-
-            ax1.set_title("test")
-            ax1.grid()
-            ax1.set_xlabel('x',fontsize=16)
-            ax1.set_ylabel('y1',fontsize=16)
-            ax1.plot(x, y)
-            
-            canvas = FigureCanvasAgg(fig)
-            png_output = BytesIO()
-            canvas.print_png(png_output)
-            data = png_output.getvalue()
             for student in students:
                 if student["id"] == student_id:
-                    print("a")
+                    # 日付
+                    x = list(student["rate_history"].keys())
+                    # 出席率
+                    y = list(student["rate_history"].values())
+                    # 日付をDATE型に変更
+                    x_dt = pd.to_datetime(x, errors='coerce')
+                    # 出席率のグラフ作成表示
+                    fig, ax = plt.subplots()
+                    ax.plot(x_dt, y, color="blue")
+                    ax.set_ylim(-4,105,5)
+                    plt.grid(True)
+                    plt.scatter(x, y, marker="o", color="blue", s=125)
+                    plt.xticks(rotation=30)
+                    plt.yticks(np.arange(-0, 110, step=10))
+                    #　出席率のグラフの保存
+                    path = f"static/graph_images/{student_id}.png"
+                    plt.savefig(path)
+
+# パラメータの設定
                     params = {
                          "student": student,
-                         "image": data
+                         "image": path,
+                         "test_names": test_names
                     }
                     return render_template("student_detail.html", params=params)
-        if request.method=="POST":    
-            print("B")
-    return redirect(url_for("login"))
+        if request.method=="POST":  
+            x = []  
+            for key in test_names.keys():
+                if request.form[key]:
+                    test_key = request.form[key]
+
+            for student in students:
+                x.append(student["test"][test_key])
+            fig, ax = plt.subplots()
+            ax.hist(x)
+            path = f"static/graph_images/{student_id}_{test_key}.png"
+            plt.savefig(path)
+            for student in students:
+                if student["id"] == student_id:
+
+                    params = {
+                        "image": path,
+                        "test_names": test_names,
+                        "student": student
+                    }
+
+                    return render_template("student_detail.html", params=params)
+            return redirect(url_for("login"))
+    # return redirect(url_for("login"))
     
     
 if __name__ == "__main__":
