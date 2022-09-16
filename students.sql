@@ -7,6 +7,6 @@ create table student (
     department varchar(30) NOT NULL, 
     major varchar(30) NOT NULL
 );
-name_sub フリガナ
+name_sub ふりがな
 department 専攻
 major　学科
