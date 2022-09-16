@@ -11,6 +11,7 @@ from matplotlib.backends.backend_agg import FigureCanvasAgg
 import pandas as pd
 import numpy as np
 from flask import Flask,render_template, request, redirect, url_for ,make_response
+import japanize_matplotlib
 #pip install flask
 
 import psycopg2 #pip install psycopg2
@@ -331,19 +332,20 @@ def histogram(student_id, test_key):
         x = []  
         for student in students:
             x.append(student["test"][test_key])
-        sorted_x = list(set(sorted(x, reverse=True)))
+        sorted_x = sorted(list(set(x)),reverse=True)
         print(sorted_x)
         fig, ax = plt.subplots()
         y = range(1, len(sorted_x)+1) 
         for student in students:
-
+            #　自分の点数の色を変更する
             if student["id"] == student_id:
                 color = ["red" if i == student["test"][test_key] else "blue" for i in sorted_x]
-        ax.bar(y,sorted_x,color=color)
+
+        ax.bar(y, sorted_x, color=color)
         plt.title(f"{test_names[test_key]}")
         # そのテスト受講者の学生の人数分
-        plt.xlim(0.5,len(x)+0.5)
-        plt.xticks(np.arange(1, len(x)+1, step=1))
+        plt.xlim(0.5,len(sorted_x)+0.5)
+        plt.xticks(np.arange(1, len(sorted_x)+1, step=1))
         plt.ylabel("点数")
         plt.grid(c="black")
         plt.tick_params(labelsize = 10)
