@@ -1,4 +1,3 @@
-
 from datetime import datetime
 import datetime
 from unittest.mock import patch#DBあったらいらないかも？
@@ -12,6 +11,7 @@ import pandas as pd
 import numpy as np
 from flask import Flask,render_template, request, redirect, url_for ,make_response
 import japanize_matplotlib
+import re
 #pip install flask
 
 import psycopg2 #pip install psycopg2
@@ -26,7 +26,7 @@ app = Flask(__name__)
 connection = psycopg2.connect(host='localhost',
                              user='postgres',
                              password='apple2224',
-                             database='testdb')
+                             database='testdb2')
 
 # ログイン認証
 session = {"loggedin": None,
@@ -40,45 +40,72 @@ def register():
         if request.method=="GET":
             # パラメータの設定
             params = {
-                "msg": ""
+                "msg": "",
+                "ID": "",
+                "name": "",
+                "name_sub":"",
+                "age":"",
+                "password":"" ,
+                "password2":"",
             }
-            return render_template("form.html",params=params)
+            return render_template("register.html",params=params)
         elif request.method=="POST":
             # パラメータの設定
             params = {
-                "msg": ""
+                "msg": "",
+                "ID": request.form["ID"],
+                "name": request.form["teacher_name"],
+                "name_sub": request.form["name_sub"],
+                "age": request.form["age"],
+                "password": request.form["password"],
+                "password2": request.form["password2"]
             }
             try:
                 if len(request.form["ID"]) != 6 and len(request.form["password"]) != 4:
                     params["msg"] = "IDは数字6桁、パスワードは数字４桁に設定してください"
-                    return render_template("form.html",params=params)
+                    return render_template("register.html",params=params)
+                elif re.compile('[0-9]+').fullmatch(request.form["teacher_name"]) == None and re.compile('[０-９]+').fullmatch(request.form["teacher_name"]) != None and re.compile('[ａ-ｚＡ-Ｚ]+').fullmatch(request.form["teacher_name"]) != None:
+                    params["msg"] = "名前を正しく入力してください"
+                    return render_template("register.html",params=params)
+                elif re.compile('[\u3041-\u309F]+').fullmatch(request.form["name_sub"]) == None:
+                    params["msg"] = "ふりがなをひらがなで入力してください"
+                    return render_template("register.html",params=params)
                 elif len(request.form["ID"]) != 6:
                     params["msg"] = "ID数字6桁にしてください"
-                    return render_template("form.html",params=params)
+                    return render_template("register.html",params=params)
                 elif len(request.form["password"]) != 4:
                     params["msg"] = "パスワードは数字４桁にしてください"
-                    return render_template("form.html",params=params)
+                    return render_template("register.html",params=params)
+                elif request.form["password"] != request.form["password2"]:
+                    params["msg"] = "パスワードが同じではありません"
+                    return render_template("register.html",params=params)
+                elif re.compile('[0-9]+').fullmatch(request.form["age"]) == None:
+                    params["msg"] = "年齢に文字が含まれています"
+                    return render_template("register.html", params=params)
+                elif len(request.form["age"]) != 2:
+                    params["msg"] = "年齢を正しく入力してください"
+                    return render_template("register.html",params=params)
                 else:
                     password = int(request.form["password"])
             except:
                     params["msg"] = "パスワードは数字４桁にしてください"
-                    return render_template("form.html",params=params)
-            values = [[request.form["ID"], request.form["password"]]]
+                    return render_template("register.html",params=params)
+            values = [[request.form["ID"], request.form["password"], request.form["teacher_name"], "", request.form["name_sub"],request.form["age"], request.form["gender"]]]
 
             with connection:
                 with connection.cursor() as cursor:
-                    sql = f'insert into users(id, password) values (%s, %s)'
+                    sql = f'insert into teacher(id, password, name, class ,name_sub ,age, gender) values (%s, %s, %s, %s, %s, %s, %s)'
                     try:
                         cursor.executemany(sql, values)
                     except psycopg2.errors.UniqueViolation:
                         params["msg"] = "このIDは既に存在しています。"
-                        return render_template("form.html", params=params)
+                        return render_template("register.html", params=params)
                     except psycopg2.errors.InvalidTextRepresentation:
                         params["msg"] = "IDに数字以外の文字が含まれています"
-                        return render_template("form.html", params=params)
+                        return render_template("register.html", params=params)
                     except psycopg2.errors.NumericValueOutOfRange:
                         params["msg"] = "IDが長すぎます,10文字以下にしてください"
-                        return render_template("form.html", params=params)
+                        return render_template("register.html", params=params)
                 connection.commit()
             cursor.close()
         return render_template('register_complete.html')
@@ -111,15 +138,26 @@ def login():
                     rows = cursor.fetchall()
 
                     try:
+                        print(rows)
+                        print(rows[0])
                         id = rows[0][0]
                         password = rows[0][1]
+                        print(id)
                         # IDとPASSWORDが一致した場合
-                        if id == int(params["ID"]) and password == params["password"]:
+                        if id == params["ID"] and password == params["password"]:
                             # ログイン認証
                             session["loggedin"] = True
                             session["username"] = "DBについかする"
                             session["user_id"] = id
-                            return render_template("index.html", params=params)  
+                            print(session["user_id"])
+                            print(id)
+                            params = {
+                                "ID": request.form["ID"],
+                                "password": request.form["password"],
+                                "msg": "ログインが完了しました",
+                                "user": session["user_id"]
+                            }
+                            return render_template("home.html", params=params)  
                             # ID, password が6文字と４文字以外の場合
                         elif len(id) != 6 or len(password) != 4: 
                             params["msg"] = "IDかパスワードのどちらかが間違っています"
@@ -134,7 +172,7 @@ def login():
                 #     params["msg"] = "IDかパスワードのどちらかが間違っています"
                 #     return render_template("login.html", params=params)
                 
-    return render_template("index.html", params=params)
+    return render_template("home.html", params=params)
 
 
 
@@ -166,7 +204,7 @@ def logout():
     session["loggedin"] = None
     session["user_id"] = None
     session["username"] = None
-    return redirect(url_for('login'))
+    return render_template("logout.html")
 
 @app.route("/student_list", methods=["GET", "POST"])
 def student_list():
@@ -363,8 +401,32 @@ def histogram(student_id, test_key):
                                 }
                     return render_template("student_detail.html", params=params)
         return redirect(url_for("login"))
-    
-    
+
+@app.route("/home", methods=["GET", "POST"])    
+def home():
+    if request.method=="GET":
+        params = {
+          "user": session["user_id"]
+        }
+        return render_template("home.html", params=params)
+    if request.method=="POST":
+        return render_template("home.html", params=params)
+    # return redirect(url_for("login")) 
+
+@app.route("/teacher_classes_setting", methods=["POST", "GET"])
+def teacher_classes_setting():
+    # 講師、専攻、学年をプルダウンメニューで選択して、それに該当する授業をチェックボックス
+    params={
+        "teachers":"先生"#dbから講師一覧
+    }
+
+    if request.method == "GET":
+        return render_template("teacher_list.html", params=params)
+    if request.method == "POST":
+        return render_template("teacher_list.html", params=params)
+
+
+
 if __name__ == "__main__":
     app.run(port=12345, debug=True) #12345でerrorがでたら8000にする
 

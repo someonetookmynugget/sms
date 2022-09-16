@@ -1,5 +1,5 @@
 create table users(
-    id serial not null,
+    id varchar(6) not null,
     password varchar(255),
     primary key (id)
 );
