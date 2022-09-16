@@ -11,12 +11,17 @@
     {{ params.student.id }}
     {{ params.student.name }}
     <img src="/{{ params.image }}" />
-    {% for testkey, testname in params.test_names.items() %}
     <form action="/view_profile/{{ params.student.id }}"  methods="POST">
 
-      <input type="submit" value="{{ testname }}" name="{{ testkey }}">
+      <input type="submit" value="出席率">
+    </form>
+    {% for testkey, testname in params.test_names.items() %}
+    <form action="/view_profile/{{ params.student.id }}/score_graph_{{testkey}}"  methods="POST">
+
+      <input type="submit" value="{{ testname }}">
+    </form>
     {% endfor %}
-</form>
+
 </body>
 </html>
 

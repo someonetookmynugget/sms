@@ -1,9 +1,12 @@
 
 from datetime import datetime
-import datetime#DBあったらいらないかも？
+import datetime
+from unittest.mock import patch#DBあったらいらないかも？
 import psycopg2.extras
 from matplotlib.figure import Figure
 import matplotlib.pyplot as plt
+import matplotlib  # <--ここを追加
+matplotlib.use('Agg')
 from matplotlib.backends.backend_agg import FigureCanvasAgg
 import pandas as pd
 import numpy as np
@@ -241,7 +244,11 @@ def edit_score():
                 if student["id"] == request.form["id"]:
                     for i in range(1, len(student["test"])+1):
                         # 選択した学生のテストの点数を入れる
-                        student["test"][f"test{i}"] = request.form.get(f"test{i}")
+                        try:
+                            student["test"][f"test{i}"] = int(request.form.get(f"test{i}"))
+                        except ValueError:
+                            msg = "点数に文字は入れれません"
+                            
                     # 備考追加
                     student["note"] = request.form["note"]    
                     break
@@ -287,8 +294,10 @@ def edit_test_name():
 def view_profile(student_id):
     # if session["loggedin"] == True: 
         if request.method=="GET":
+            print("AAAAAAAAAAAAAAAAAA")
             for student in students:
                 if student["id"] == student_id:
+
                     # 日付
                     x = list(student["rate_history"].keys())
                     # 出席率
@@ -296,48 +305,62 @@ def view_profile(student_id):
                     # 日付をDATE型に変更
                     x_dt = pd.to_datetime(x, errors='coerce')
                     # 出席率のグラフ作成表示
+                    
                     fig, ax = plt.subplots()
-                    ax.plot(x_dt, y, color="blue")
+                    plt.plot(x_dt, y, color="blue")
                     ax.set_ylim(-4,105,5)
-                    plt.grid(True)
+                    plt.grid(c="black")
                     plt.scatter(x, y, marker="o", color="blue", s=125)
                     plt.xticks(rotation=30)
                     plt.yticks(np.arange(-0, 110, step=10))
                     #　出席率のグラフの保存
                     path = f"static/graph_images/{student_id}.png"
-                    plt.savefig(path)
-
-# パラメータの設定
+                    plt.savefig(path)  
+# パラメータの  
                     params = {
                          "student": student,
                          "image": path,
                          "test_names": test_names
                     }
                     return render_template("student_detail.html", params=params)
-        if request.method=="POST":  
-            x = []  
-            for key in test_names.keys():
-                if request.form[key]:
-                    test_key = request.form[key]
+        # return redirect(url_for("login"))   
+@app.route("/view_profile/<student_id>/score_graph_<test_key>",methods=["GET","POST"])                      
+def histogram(student_id, test_key):
+    if request.method=="GET":  
 
-            for student in students:
-                x.append(student["test"][test_key])
-            fig, ax = plt.subplots()
-            ax.hist(x)
-            path = f"static/graph_images/{student_id}_{test_key}.png"
-            plt.savefig(path)
-            for student in students:
-                if student["id"] == student_id:
+        x = []  
+        for student in students:
+            x.append(student["test"][test_key])
+        sorted_x = list(set(sorted(x, reverse=True)))
+        print(sorted_x)
+        fig, ax = plt.subplots()
+        y = range(1, len(sorted_x)+1) 
+        for student in students:
 
+            if student["id"] == student_id:
+                color = ["red" if i == student["test"][test_key] else "blue" for i in sorted_x]
+        ax.bar(y,sorted_x,color=color)
+        plt.title(f"{test_names[test_key]}")
+        # そのテスト受講者の学生の人数分
+        plt.xlim(0.5,len(x)+0.5)
+        plt.xticks(np.arange(1, len(x)+1, step=1))
+        plt.ylabel("点数")
+        plt.grid(c="black")
+        plt.tick_params(labelsize = 10)
+
+
+        path = f"static/graph_images/{student_id}_{test_key}.png"
+        plt.savefig(path)
+        for student in students:
+            if student["id"] == student_id:
+                
                     params = {
                         "image": path,
                         "test_names": test_names,
                         "student": student
-                    }
-
+                                }
                     return render_template("student_detail.html", params=params)
-            return redirect(url_for("login"))
-    # return redirect(url_for("login"))
+        return redirect(url_for("login"))
     
     
 if __name__ == "__main__":
