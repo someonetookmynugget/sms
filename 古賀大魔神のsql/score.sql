@@ -1,5 +1,5 @@
 create table score (
-    id int NOT NULL PRIMARY KEY, 
+    id varchar(30) NOT NULL, 
     name varchar(30) NOT NULL ,
     name_sub varchar(30) NOT NULL,
     subject varchar(30) NOT NULL,

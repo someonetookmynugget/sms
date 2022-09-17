@@ -26,7 +26,7 @@ app = Flask(__name__)
 connection = psycopg2.connect(host='localhost',
                              user='postgres',
                              password='apple2224',
-                             database='testdb2')
+                             database='testdb')
 
 # ログイン認証
 session = {"loggedin": None,
@@ -61,7 +61,7 @@ def register():
                 "password2": request.form["password2"]
             }
             try:
-                if len(request.form["ID"]) != 6 and len(request.form["password"]) != 4:
+                if len(str(request.form["ID"])) != 6 and len(str(request.form["password"])) != 4:
                     params["msg"] = "IDは数字6桁、パスワードは数字４桁に設定してください"
                     return render_template("register.html",params=params)
                 elif re.compile('[0-9]+').fullmatch(request.form["teacher_name"]) == None and re.compile('[０-９]+').fullmatch(request.form["teacher_name"]) != None and re.compile('[ａ-ｚＡ-Ｚ]+').fullmatch(request.form["teacher_name"]) != None:
@@ -70,10 +70,10 @@ def register():
                 elif re.compile('[\u3041-\u309F]+').fullmatch(request.form["name_sub"]) == None:
                     params["msg"] = "ふりがなをひらがなで入力してください"
                     return render_template("register.html",params=params)
-                elif len(request.form["ID"]) != 6:
+                elif len(str(request.form["ID"])) != 6:
                     params["msg"] = "ID数字6桁にしてください"
                     return render_template("register.html",params=params)
-                elif len(request.form["password"]) != 4:
+                elif len(str(request.form["password"])) != 4:
                     params["msg"] = "パスワードは数字４桁にしてください"
                     return render_template("register.html",params=params)
                 elif request.form["password"] != request.form["password2"]:
@@ -134,23 +134,23 @@ def login():
             with connection.cursor() as cursor:
                 try:
                     # データベースから値を選択
-                    cursor.execute("select * from users where id = %s and password = %s", (params["ID"], params["password"],))
+                    cursor.execute("select * from teacher where id = %s and password = %s", (params["ID"], params["password"],))
                     rows = cursor.fetchall()
 
                     try:
-                        print(rows)
-                        print(rows[0])
+                        print(rows)###### 消す
+                        print(rows[0])###### 消す
                         id = rows[0][0]
-                        password = rows[0][1]
-                        print(id)
+                        password = rows[0][4]
+                        print(id)###### 消す
                         # IDとPASSWORDが一致した場合
                         if id == params["ID"] and password == params["password"]:
                             # ログイン認証
                             session["loggedin"] = True
                             session["username"] = "DBについかする"
                             session["user_id"] = id
-                            print(session["user_id"])
-                            print(id)
+                            print(session["user_id"])###### 消す
+                            print(id)###### 消す
                             params = {
                                 "ID": request.form["ID"],
                                 "password": request.form["password"],
@@ -160,13 +160,13 @@ def login():
                             return render_template("home.html", params=params)  
                             # ID, password が6文字と４文字以外の場合
                         elif len(id) != 6 or len(password) != 4: 
-                            params["msg"] = "IDかパスワードのどちらかが間違っています"
+                            params["msg"] = "IDかパスワードのどちらかが間違っていますaaaaaaaa"
                             return render_template("login.html", params=params)
                     except IndexError:
-                        params["msg"] = "IDかパスワードのどちらかが間違っています"
+                        params["msg"] = "IDかパスワードのどちらかが間違っていますvbbbbbbbbbbb"
                         return render_template("login.html", params=params)
                 except (psycopg2.errors.InvalidTextRepresentation, psycopg2.errors.NumericValueOutOfRange):
-                    params["msg"] = "IDかパスワードのどちらかが間違っています"# 書き換え
+                    params["msg"] = "IDかパスワードのどちらかが間違っていますcccccccccccc"# 書き換え
                     return render_template("login.html", params=params)
                 # except psycopg2.errors.NumericValueOutOfRange:
                 #     params["msg"] = "IDかパスワードのどちらかが間違っています"
@@ -177,9 +177,9 @@ def login():
 
 
 students = [
-            {"id":"2004230011", "name":"西結都","test":{"test1": ""},"note":"", "date":{"2022-09-01":"attend","2022-09-02":"attend","2022-09-03":"absence","2022-09-04":"attend","2022-09-05":"attend"},"rate":"","rate_history":{"2022-09-01":100, "2022-09-02":100,"2022-09-03":66.7,"2022-09-04":75,}},
-            {"id":"2222222222", "name":"古賀慶次郎","test":{"test1": ""},"note":"", "date":{"2022-09-01":"absence","2022-09-02":"attend","2022-09-03":"attend","2022-09-04":"absence","2022-09-05":"attend"},"rate":"","rate_history":{"2022-09-01":100, "2022-09-02":100,"2022-09-03":66.7,"2022-09-04":75,}},
-            {"id":"3333333333", "name":"中村太一","test":{"test1": ""},"note":"", "date":{"2022-09-01":"absence","2022-09-02":"attend","2022-09-03":"absence","2022-09-04":"absence","2022-09-05":"absence"},"rate":"","rate_history":{"2022-09-01":0, "2022-09-02":50,"2022-09-03":66.7,"2022-09-04":75,}},
+            {"id":"2004230011", "name":"西結都","test":{},"note":"", "date":{"2022-09-01":"attend","2022-09-02":"attend","2022-09-03":"absence","2022-09-04":"attend","2022-09-05":"attend"},"rate":"","rate_history":{"2022-09-01":100, "2022-09-02":100,"2022-09-03":66.7,"2022-09-04":75,}},
+            {"id":"2222222222", "name":"古賀慶次郎","test":{},"note":"", "date":{"2022-09-01":"absence","2022-09-02":"attend","2022-09-03":"attend","2022-09-04":"absence","2022-09-05":"attend"},"rate":"","rate_history":{"2022-09-01":100, "2022-09-02":100,"2022-09-03":66.7,"2022-09-04":75,}},
+            {"id":"3333333333", "name":"中村太一","test":{},"note":"", "date":{"2022-09-01":"absence","2022-09-02":"attend","2022-09-03":"absence","2022-09-04":"absence","2022-09-05":"absence"},"rate":"","rate_history":{"2022-09-01":0, "2022-09-02":50,"2022-09-03":66.7,"2022-09-04":75,}},
             ]
 #### test
 for student in students:
@@ -196,7 +196,6 @@ for student in students:
 
 
 test_names = {
-    "test1": "test1"
 }
 
 @app.route("/logout")
@@ -232,7 +231,7 @@ def add_test():
                 student["test"][f"test{len(student['test'])+1}"] = ""
                 # test_namesにテスト項目を追加
                 test_names[f"test{len(student['test'])}"] = "test"+str(len(student["test"]))
-                print(test_names)
+                print(test_names)###### 消す
                 msg=""
                 # パラメータの設定
                 params = {
@@ -317,7 +316,7 @@ def edit_test_name():
                     msg = "テストの名前は20文字以下に設定してください"
        
         #dbにinsert
-        print(test_names["test1"])
+        print(test_names["test1"])###### 消す
         # パラメータの設定
         params = {
             "students": students,
@@ -333,7 +332,7 @@ def edit_test_name():
 def view_profile(student_id):
     # if session["loggedin"] == True: 
         if request.method=="GET":
-            print("AAAAAAAAAAAAAAAAAA")
+            print("AAAAAAAAAAAAAAAAAA")###### 消す
             for student in students:
                 if student["id"] == student_id:
 
@@ -371,7 +370,7 @@ def histogram(student_id, test_key):
         for student in students:
             x.append(student["test"][test_key])
         sorted_x = sorted(list(set(x)),reverse=True)
-        print(sorted_x)
+        print(sorted_x)###### 消す
         fig, ax = plt.subplots()
         y = range(1, len(sorted_x)+1) 
         for student in students:
@@ -397,7 +396,8 @@ def histogram(student_id, test_key):
                     params = {
                         "image": path,
                         "test_names": test_names,
-                        "student": student
+                        "student": student,
+                        "test_name_value": test_names[test_key] 
                                 }
                     return render_template("student_detail.html", params=params)
         return redirect(url_for("login"))
@@ -411,20 +411,51 @@ def home():
         return render_template("home.html", params=params)
     if request.method=="POST":
         return render_template("home.html", params=params)
-    # return redirect(url_for("login")) 
-
+    # return redirect(url_for("login"))
+     
+@app.route("/selects", methods=["POST", "GET"])
+def select_class():
+    #データベースからその講師の担当授業一覧を持ってくる
+    if request.method == "GET":
+        return render_template("selects.html") #paramsの設定
+    if request.method == "POST":
+        return render_template("selects.html") #paramsの設定
+    
+    
 @app.route("/teacher_classes_setting", methods=["POST", "GET"])
 def teacher_classes_setting():
     # 講師、専攻、学年をプルダウンメニューで選択して、それに該当する授業をチェックボックス
-    params={
-        "teachers":"先生"#dbから講師一覧
-    }
+        if request.method == "GET":
+            print("aaaasdasdaa")###### 消す
+            with connection:
+                with connection.cursor() as cursor:
+                    try:
+                        # データベースから値を選択
+                        cursor.execute("select name from teacher")
+                        print("DBBBBBB") ###### 消す
+                        rows = cursor.fetchall()
+                        print(rows[1])###### 消す
+                        teachers = []
+                        for row in rows:
+                            teachers.append(row[0])
+                        params={
+                        "teachers": teachers #dbから講師一覧
+                        }
+                    except:
+                        pass
+                    print("aaaaa")###### 消す
 
-    if request.method == "GET":
-        return render_template("teacher_list.html", params=params)
-    if request.method == "POST":
-        return render_template("teacher_list.html", params=params)
-
+                    return render_template("teacher_list.html", params=params)
+        if request.method == "POST":
+            print("bbbbb")###### 消す
+            return render_template("teacher_list.html", params=params)
+@app.route("/attendance_check", methods=["POST", "GET"])       
+def attendance_check():
+    if request.method=="GET":
+        return render_template("attendance_check.html")
+    if request.method=="POST":
+        return render_template("attendance_check.html")
+                
 
 
 if __name__ == "__main__":
