@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <!DOCTYPE html>
 <html>
 <head>
@@ -12,4 +13,20 @@
     <input type="submit" value="送信">
   </form>
 </body>
+=======
+<!DOCTYPE html>
+<html>
+<head>
+  <title>登録画面</title>
+</head>
+<body>
+  <h1>新規ユーザー登録画面</h1>
+  <p>{{ params.msg }}</p>
+  <form action="/register" method="POST">
+    <input type="text" name="ID" placeholder="ID"　required>
+    <input type="password" name="password" placeholder="password" required>
+    <input type="submit" value="送信">
+  </form>
+</body>
+>>>>>>> 487df3b6295c1fb5ca21d80f6fc1e8e4bd493667
 </html>

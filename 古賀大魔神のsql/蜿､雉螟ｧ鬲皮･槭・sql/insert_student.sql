@@ -1,0 +1,24 @@
+insert into student (
+    student_id,
+    name,
+    name_sub,
+    gender,
+    age,
+    grade,
+    department_id,
+    majour_id,
+    class_id,
+    subject_id
+    )
+values(
+    2004230006,
+    "古賀慶次郎",
+    "コガケイジロウ",
+    "男",
+    21,
+    3,
+    1,
+    2,
+    2,
+    1
+);
