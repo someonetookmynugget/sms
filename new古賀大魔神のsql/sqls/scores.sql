@@ -4,6 +4,12 @@ create table scores (
     subject_id int NOT NULL ,
     score int NOT NULL,
     test_day date NOT NULL,
-    grader varchar(20) test_name NOT NULL,
-    test_name varchar(20) NOT NULL
+    teacher_name varchar(20) NOT NULL,
+    test_name varchar(20) NOT NULL,
+
+    FOREIGN KEY(student_id)
+    REFERENCES student(id),
+
+    FOREIGN KEY(subject_id)
+    REFERENCES subjects(id)
 );

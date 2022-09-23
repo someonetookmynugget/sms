@@ -91,11 +91,11 @@ def register():
             except:
                     params["msg"] = "パスワードは数字４桁にしてください"
                     return render_template("register.html",params=params)
-            values = [[request.form["ID"], request.form["password"], request.form["teacher_name"], "", request.form["name_sub"],request.form["age"], request.form["gender"]]]
+            values = [[request.form["ID"], request.form["password"], request.form["teacher_name"], "", request.form["name_sub"], int(request.form["age"]), request.form["gender"], 2 ,1]]
 
             with connection:
                 with connection.cursor() as cursor:
-                    sql = f'insert into teacher(id, password, name, class ,name_sub ,age, gender) values (%s, %s, %s, %s, %s, %s, %s)'
+                    sql = f'insert into teacher(teacher_id, password, name ,name_sub ,age, gender, subject_id, major_id ) values (%s, %s, %s, %s, %s, %s, %s, %s)'
                     try:
                         cursor.executemany(sql, values)
                     except psycopg2.errors.UniqueViolation:
@@ -110,10 +110,10 @@ def register():
                 connection.commit()
             cursor.close()
         return render_template('register_complete.html')
-    # return redirect(url_for("login"))
-@app.route("/")
-def access():
-    return redirect(url_for("login"))
+    #  return redirect(url_for("login"))
+# @app.route("/")
+# def access():
+#     # return redirect(url_for("login"))
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
@@ -209,7 +209,7 @@ def logout():
 @app.route("/student_list", methods=["GET", "POST"])
 def student_list():
 
-    if session["loggedin"] == True:
+    # if session["loggedin"] == True:
         if request.method=="GET":
             msg = ""
             ##############
@@ -220,11 +220,11 @@ def student_list():
                 "msg":msg
             }
             return render_template("student_list.html", params=params)          
-    return redirect(url_for("login"))  
+    #return redirect(url_for("login"))  
 
 @app.route("/add_test", methods=["GET", "POST"])
 def add_test():
-    if session["loggedin"] == True:
+    # if session["loggedin"] == True:
         if request.method=="GET":
             #############
             for student in students:
@@ -241,12 +241,12 @@ def add_test():
                     "msg": msg
                 }
             return render_template("student_list.html", params=params)
-    return redirect(url_for("login"))
+    # return redirect(url_for("login"))
 
 
 @app.route("/delete_test", methods=["GET", "POST"])
 def delete_test():
-    if session["loggedin"] == True:
+    # if session["loggedin"] == True:
         if request.method=="GET":
             msg=""
             #############
@@ -269,12 +269,12 @@ def delete_test():
                 "msg": msg
             }
             return render_template("student_list.html", params=params)
-    return redirect(url_for("login"))
+    # return redirect(url_for("login"))
 
 
 @app.route("/edit_score", methods=["GET", "POST"])
 def edit_score():
-    if session["loggedin"] == True:
+    # if session["loggedin"] == True:
         msg = ""
         if request.method=="POST":
             ###########
@@ -284,7 +284,17 @@ def edit_score():
                     for i in range(1, len(student["test"])+1):
                         # 選択した学生のテストの点数を入れる
                         try:
-                            student["test"][f"test{i}"] = int(request.form.get(f"test{i}"))
+                            pass
+                            #db ni ireru 
+                            # with connection:
+                            #     with connection.cursor() as cursor:
+                            #         try:
+                            #             # データベースから値を選択
+                            #             cursor.execute("insert into score(student_id, subject_id, score, test_day, test_name", (request.form["id"],"後で追加", int(request.form.get(f"test{i}"))))
+                            #             rows = cursor.fetchall()
+                            #         except:
+                            #             pass
+                        #    int(request.form.get(f"test{i}"))
                         except ValueError:
                             msg = "点数に文字は入れれません"
                             
@@ -299,33 +309,32 @@ def edit_score():
                 "msg": msg
             }             
         return render_template("student_list.html", params=params)        
-    return redirect(url_for("login"))
+    # return redirect(url_for("login"))
 
 @app.route("/edit_test_name", methods=["POST"])
 def edit_test_name():
     msg = ""
-    if session["loggedin"] == True:
-        if request.method=="POST":
-            #　テストテーブルの個数分回して新しいテストカラムをつくる
-            for i in range(1, len(students[0]["test"])+1):
-                # テスト名の文字数制限
-                if len(request.form[f"test{i}_name"]) <= 20:
-                    # テスト名の変更
-                    test_names[f"test{i}"] = request.form[f"test{i}_name"]
-
-                else:
-                    msg = "テストの名前は20文字以下に設定してください"
-       
-        #dbにinsert
-        print(test_names["test1"])###### 消す
-        # パラメータの設定
-        params = {
-            "students": students,
-            "test_names": test_names,
-            "msg": msg
-        }             
-        return render_template("student_list.html", params=params)        
-    return redirect(url_for("login"))
+    # if session["loggedin"] == True:
+    if request.method=="POST":
+        #　テストテーブルの個数分回して新しいテストカラムをつくる
+        for i in range(1, len(students[0]["test"])+1):
+            # テスト名の文字数制限
+            if len(request.form[f"test{i}_name"]) <= 20:
+                # テスト名の変更
+                test_names[f"test{i}"] = request.form[f"test{i}_name"]
+            else:
+                msg = "テストの名前は20文字以下に設定してください"
+    
+    #dbにinsert
+    print(test_names["test1"])###### 消す
+    # パラメータの設定
+    params = {
+        "students": students,
+        "test_names": test_names,
+        "msg": msg
+    }             
+    return render_template("student_list.html", params=params)        
+    # return redirect(url_for("login"))
 
 
 
@@ -362,7 +371,7 @@ def view_profile(student_id):
                          "test_names": test_names
                     }
                     return render_template("student_detail.html", params=params)
-        # return redirect(url_for("login"))   
+        return redirect(url_for("login"))   
 @app.route("/view_profile/<student_id>/score_graph_<test_key>",methods=["GET","POST"])                      
 def histogram(student_id, test_key):
     if request.method=="GET":  
@@ -401,7 +410,7 @@ def histogram(student_id, test_key):
                         "test_name_value": test_names[test_key] 
                                 }
                     return render_template("student_detail.html", params=params)
-        return redirect(url_for("login"))
+        # return redirect(url_for("login"))
 
 @app.route("/home", methods=["GET", "POST"])    
 def home():
@@ -412,7 +421,7 @@ def home():
         return render_template("home.html", params=params)
     if request.method=="POST":
         return render_template("home.html", params=params)
-    # return redirect(url_for("login"))
+    return redirect(url_for("login"))
      
 @app.route("/selects", methods=["POST", "GET"])
 def select_class():

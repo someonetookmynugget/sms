@@ -4,7 +4,7 @@ create table subjects (
     department_id int NOT NULL,
     major_id int NOT NULL,
     FOREIGN KEY(department_id) 
-    REFERENCES departments(id)
+    REFERENCES departments(id),
 
     FOREIGN KEY(major_id)
     REFERENCES majors(id)

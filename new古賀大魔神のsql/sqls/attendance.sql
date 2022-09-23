@@ -8,6 +8,6 @@ create table attendance (
     FOREIGN KEY(name) 
     REFERENCES student(name)
 
-    FOREIGN (subject_id)
+    FOREIGN KEY(subject_id)
     REFERENCES subjects(id)
 );

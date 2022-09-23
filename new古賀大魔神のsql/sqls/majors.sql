@@ -4,5 +4,5 @@ create table majors (
     department_id int NOT null,
 
     FOREIGN KEY(department_id)
-    REFERENCES departments(department_id)
+    REFERENCES departments(id)
 );
