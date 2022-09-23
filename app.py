@@ -178,11 +178,14 @@ def login():
 
 
 students = [
-            {"id":"2004230011", "name":"西結都","test":{},"note":"", "date":{"2022-09-01":"attend","2022-09-02":"attend","2022-09-03":"absence","2022-09-04":"attend","2022-09-05":"attend"},"rate":"","rate_history":{"2022-09-01":100, "2022-09-02":100,"2022-09-03":66.7,"2022-09-04":75,}},
+            {"id":"2004230011", "name":"西結都","test":{"test1": ""},"note":"", "date":{"2022-09-01":"attend","2022-09-02":"attend","2022-09-03":"absence","2022-09-04":"attend","2022-09-05":"attend"},"rate":"","rate_history":{"2022-09-01":100, "2022-09-02":100,"2022-09-03":66.7,"2022-09-04":75,}},
             {"id":"2222222222", "name":"古賀慶次郎","test":{},"note":"", "date":{"2022-09-01":"absence","2022-09-02":"attend","2022-09-03":"attend","2022-09-04":"absence","2022-09-05":"attend"},"rate":"","rate_history":{"2022-09-01":100, "2022-09-02":100,"2022-09-03":66.7,"2022-09-04":75,}},
             {"id":"3333333333", "name":"中村太一","test":{},"note":"", "date":{"2022-09-01":"absence","2022-09-02":"attend","2022-09-03":"absence","2022-09-04":"absence","2022-09-05":"absence"},"rate":"","rate_history":{"2022-09-01":0, "2022-09-02":50,"2022-09-03":66.7,"2022-09-04":75,}},
             ]
 #### test
+test_name = {
+    "test1": "as"
+}
 for student in students:
     attend = 0
     total = len(student["date"])
@@ -226,17 +229,74 @@ def student_list():
 def add_test():
     # if session["loggedin"] == True:
         if request.method=="GET":
+            print("AAAAAAAAAAAAAAAAAAAAAAAAAAA")
             #############
-            for student in students:
-                #　生徒にテスト項目を追加
-                student["test"][f"test{len(student['test'])+1}"] = ""
-                # test_namesにテスト項目を追加
-                test_names[f"test{len(student['test'])}"] = "test"+str(len(student["test"]))
-                print(test_names)###### 消す
+            ### db insert test table no name  ni ireru
+            ### db select test table
+            ### db parameter watasu
+            ### student = db kara student table mottekuru sosite sorewo parameter ni watas
+        if request.method == "POST":
+            name = request.form["test_name"]
+            values = [[name, ""]]
+            with connection:
+                with connection.cursor() as cursor:
+                    print(name)
+                    sql = f'insert into test(test_name, test_score) values (%s, %s);'
+                    try:
+                        cursor.executemany(sql, values)
+                    except:
+                        pass
+                connection.commit()
+            cursor.close()
+            with connection:
+                with connection.cursor() as cursor:
+                    sql = f'SELECT test_name FROM test'
+                    try:
+                        cursor.executemany(sql, values)
+                    except:
+                        pass
+                connection.commit()
+            cursor.close()
+            
+            test_names = []
+            student_list =[
+                {"student_names" : [],
+                "student_ids" : [],
+                "test_scores": [],}
+            ]
+            ####
+            student_list = {
+                "name" : {"student_names":"", "student_ids": "", "test_scores":"",}
+            }
+            ####
+            with connection:
+                with connection.cursor() as cursor:
+                    try:
+                        # データベースから値を選択
+                        cursor.execute("SELECT test_name, test_score FROM test")
+                        rows = cursor.fetchall()
+                        cursor.execute("SELECT student_id, name from student")
+                        rows2 = cursor.fetchall()
+                        print(rows2)
+                        try:
+                            for row in rows2:
+                                print(row)
+                                student_list["student_names"].append(row[1])
+                                student_list["student_ids"].append(row[0])
+                            for row in rows:
+                                test_names.append(row[0])
+                                student_list["test_scores"].append(row[1])
+
+                        except:
+                            pass
+                    except:
+                        pass
                 msg=""
-                # パラメータの設定
+                print(student_list)
+                print(student_list["student_ids"], student_list["student_names"], student_list["test_scores"])
+            #     # パラメータの設定
                 params = {
-                    "students" : students,
+                    "students" : student_list,
                     "test_names": test_names,
                     "msg": msg
                 }
