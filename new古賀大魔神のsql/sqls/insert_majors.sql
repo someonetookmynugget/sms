@@ -1,13 +1,17 @@
 insert into majors(
-    major
+    major,
+	department_id
     )
 values(
-    'ホワイトハッカー'
+    'ホワイトハッカー',
+	1
 );
 
 insert into majors(
-    major
+    major,
+	department_id
     )
 values(
-    'AIクリエーター'
+    'AIクリエーター',
+	1
 );
