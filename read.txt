@@ -1,16 +1,9 @@
-<<<<<<< HEAD
+
 pip install psycopg2
 pip install flask 
 pip install japanize_matplotlib
 
 
 
-=======
-pip install psycopg2
-pip install flask 
-pip install japanize_matplotlib
 
-
-
->>>>>>> 487df3b6295c1fb5ca21d80f6fc1e8e4bd493667
 bootstrap https://getbootstrap.com/docs/5.0/getting-started/introduction/
