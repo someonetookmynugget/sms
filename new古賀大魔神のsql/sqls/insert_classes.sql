@@ -2,20 +2,20 @@ insert into classes(
     class
     )
 values(
-    "A"
+    'A'
 );
 
 insert into classes(
     class
     )
 values(
-    "B"
+    'B'
 );
 
 insert into classes(
     class
     )
 values(
-    "C"
+    'C'
 );
 

@@ -6,9 +6,9 @@ insert into teacher(
     subject_id,
     )
 values(
-    "織田",
-    "オリタ",
+    '織田',
+    'オリタ',
     18,
-    "女性",
+    '女性',
     1
 );

@@ -2,12 +2,12 @@ insert into majors(
     major
     )
 values(
-    "ホワイトハッカー"
+    'ホワイトハッカー'
 );
 
 insert into majors(
     major
     )
 values(
-    "AIクリエーター"
+    'AIクリエーター'
 );
