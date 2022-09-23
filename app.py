@@ -258,46 +258,52 @@ def add_test():
                 connection.commit()
             cursor.close()
             
-            test_names = []
-            student_list =[
-                {"student_names" : [],
-                "student_ids" : [],
-                "test_scores": [],}
-            ]
-            ####
-            student_list = {
-                "name" : {"student_names":"", "student_ids": "", "test_scores":"",}
+            test_names = {
+
             }
             ####
+            # student_list = {
+            #     "name" : {"student_names":"", "student_ids": "", "test_scores":"",}
+            # }
+            ####
+            students_list = {
+
+            }
             with connection:
                 with connection.cursor() as cursor:
                     try:
                         # データベースから値を選択
                         cursor.execute("SELECT test_name, test_score FROM test")
-                        rows = cursor.fetchall()
-                        cursor.execute("SELECT student_id, name from student")
                         rows2 = cursor.fetchall()
-                        print(rows2)
+                        cursor.execute("SELECT student_id, name from student")
+                        rows = cursor.fetchall()
+                        print(rows2,"row2")
+                        print(rows,"row")
+                        students_list = []
+                        test_names = {}
                         try:
-                            for row in rows2:
-                                print(row)
-                                student_list["student_names"].append(row[1])
-                                student_list["student_ids"].append(row[0])
-                            for row in rows:
-                                test_names.append(row[0])
-                                student_list["test_scores"].append(row[1])
-
+                            for i, row in enumerate(rows):
+                                student_id = row[0]
+                                student_name = row[1]
+                                ### 複数要素あるものはAPPEND  students_list.append({"test":{},"something":{}})
+                                students_list.append({"test":{}})
+                                students_list[i]["name"] = student_name
+                                students_list[i]["student_id"] = student_id
+                                for j, row in enumerate(rows2):
+                                    test_name = row[0]
+                                    test_score = row[1]
+                                    students_list[i]["test"][test_name] = test_score
+                                    print(students_list)
+                            
                         except:
                             pass
                     except:
                         pass
                 msg=""
-                print(student_list)
-                print(student_list["student_ids"], student_list["student_names"], student_list["test_scores"])
             #     # パラメータの設定
                 params = {
-                    "students" : student_list,
-                    "test_names": test_names,
+                    "students" : students_list,
+                    # "test_names": test_names,
                     "msg": msg
                 }
             return render_template("student_list.html", params=params)

@@ -12,3 +12,6 @@ bootstrap https://getbootstrap.com/docs/5.0/getting-started/introduction/
     学生追加機能
     授業追加機能
     飛び級機能
+
+
+    teacher tale no major id iru?!?!
