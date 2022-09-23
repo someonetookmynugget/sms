@@ -31,8 +31,8 @@
                           <tr>
                         <th>学生番号</th>
                         <th>名前</th>
-                        {% for value in params.test_names %}
-                        <th>{{ value }}</th>
+                        {% for key in params.students[0].test.keys() %}
+                        <th>{{ key }}</th>
                         {% endfor %}
                         <th>出席率</th>
                         <th>評価備考</th>
@@ -42,15 +42,15 @@
             
           
                 <div class="info">
-                        {% for student in params.students.student_ids %}
+                        {% for student in params.students %}
                         <tr>
                         
-                              <td><a href="/view_profile/{{ student }}">{{ student }}</a></td>
-                              <td>{{ student }}</td>
+                              <td><a href="/view_profile/{{ student.student_id }}">{{ student.student_id }}</a></td>
+                              <td>{{ student.name }}</td>
                         
-                        {% for i in params.students.test_scores %}
+                        {% for value in params.students[0].test.values() %}
                         
-                              <td>{{i}}</td>
+                              <td>{{ value }}</td>
                         
                         {% endfor %}
                               <td>{{ student.rate }}%</td>
