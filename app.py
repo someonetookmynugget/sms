@@ -1,4 +1,5 @@
 
+from asyncio.windows_events import NULL
 from datetime import datetime
 import datetime
 from unittest.mock import patch#DBあったらいらないかも？
@@ -134,10 +135,10 @@ def login():
         with connection:
             with connection.cursor() as cursor:
                 try:
-                    # データベースから値を選択
+                    # データベースから値を取得
+                    #teacher_id と passwordを持ってkるう
                     cursor.execute("select * from teacher where teacher_id = %s and password = %s", (params["ID"], params["password"],))
                     rows = cursor.fetchall()
-
                     try:
                         print(rows)###### 消す
                         print(rows[0])###### 消す
@@ -179,13 +180,13 @@ def login():
 
 
 students = [
-            {"id":"2004230011", "name":"西結都","test":{"test1": ""},"note":"", "date":{"2022-09-01":"attend","2022-09-02":"attend","2022-09-03":"absence","2022-09-04":"attend","2022-09-05":"attend"},"rate":"","rate_history":{"2022-09-01":100, "2022-09-02":100,"2022-09-03":66.7,"2022-09-04":75,}},
+            {"id":"2004230011", "name":"西結都","test":{},"note":"", "date":{"2022-09-01":"attend","2022-09-02":"attend","2022-09-03":"absence","2022-09-04":"attend","2022-09-05":"attend"},"rate":"","rate_history":{"2022-09-01":100, "2022-09-02":100,"2022-09-03":66.7,"2022-09-04":75,}},
             {"id":"2222222222", "name":"古賀慶次郎","test":{},"note":"", "date":{"2022-09-01":"absence","2022-09-02":"attend","2022-09-03":"attend","2022-09-04":"absence","2022-09-05":"attend"},"rate":"","rate_history":{"2022-09-01":100, "2022-09-02":100,"2022-09-03":66.7,"2022-09-04":75,}},
             {"id":"3333333333", "name":"中村太一","test":{},"note":"", "date":{"2022-09-01":"absence","2022-09-02":"attend","2022-09-03":"absence","2022-09-04":"absence","2022-09-05":"absence"},"rate":"","rate_history":{"2022-09-01":0, "2022-09-02":50,"2022-09-03":66.7,"2022-09-04":75,}},
             ]
 #### test
 test_name = {
-    "test1": "as"
+
 }
 for student in students:
     attend = 0
@@ -205,16 +206,18 @@ test_names = {
 
 @app.route("/logout")
 def logout():
+    # セッションの初期化
     session["loggedin"] = None
     session["user_id"] = None
     session["username"] = None
     return render_template("login.html")
-
+[]
 @app.route("/student_list", methods=["GET", "POST"])
 def student_list():
 
     # if session["loggedin"] == True:
         if request.method=="GET":
+            print("stundet?list GET")
             msg = ""
             ##############
             subject = request.form["subject"]
@@ -228,15 +231,51 @@ def student_list():
                         print(rows)
                     except:
                         print("a")
+            with connection:
+                with connection.cursor() as cursor:
+                    try:
+                        # データベースから値を選択
+                        cursor.execute("SELECT test_name, test_score FROM test")
+                        rows2 = cursor.fetchall()
+                        cursor.execute("SELECT student_id, name from student")
+                        rows = cursor.fetchall()
+                        print(rows2,"row2")
+                        print(rows,"row")
+                        students_list = []
+                        test_name = {
+
+                        }
+                        try:
+                            for i, row in enumerate(rows):
+                                student_id = row[0]
+                                student_name = row[1]
+                                ### 複数要素あるものはAPPEND  students_list.append({"test":{},"something":{}})
+                                students_list.append({"test":{}})
+                                students_list[i]["name"] = student_name
+                                students_list[i]["student_id"] = student_id
+                                for j, row in enumerate(rows2):
+                                    test_name = row[0]
+                                    test_score = row[1]
+                                    students_list[i]["test"][f"test{j}"] = test_score
+                                    test_names[f"test{j}"] = test_name
+                            print(students_list)
+
+                        except:
+                            print("forbun")
+                    except:
+                        print("db")
             #f"select student_id, name, subject_id FROM student where subject = {subject}"
             # パラメータの設定
+            msg = ""
             params = {
-                "students": students,#データベースからもってくる
+                "students": students_list,#データベースからもってくる
                 "test_names": test_names,
-                "msg":msg
+                "subjects": subject,
+                "msg": msg
             }
             return render_template("student_list.html", params=params)  
         if request.method=="POST":
+            print("POST stundet_list")
             msg = ""
             ##############
             subject = request.form["subject"]
@@ -252,8 +291,34 @@ def student_list():
                         print("a")
             #f"select student_id, name, subject_id FROM student where subject = {subject}"
             # パラメータの設定
+            with connection:
+                with connection.cursor() as cursor:
+                    try:
+                        # データベースから値を選択
+                        cursor.execute("SELECT test_name, test_score FROM test")
+                        rows2 = cursor.fetchall()
+                        cursor.execute("SELECT student_id, name from student")
+                        rows = cursor.fetchall()
+                        print(rows2,"row2")
+                        print(rows,"row")
+                        students_list = []
+                        test_name = {   
+                        }
+                        try:
+                            for i, row in enumerate(rows):
+                                student_id = row[0]
+                                student_name = row[1]
+                                ### 複数要素あるものはAPPEND  students_list.append({"test":{},"something":{}})
+                                students_list.append({"test":{}})
+                                students_list[i]["name"] = student_name
+                                students_list[i]["student_id"] = student_id
+                            print(students_list)
+                        except:
+                            print("forbun")
+                    except:
+                        print("db")
             params = {
-                "students": students,#データベースからもってくる
+                "students": students_list,#データベースからもってくる
                 "test_names": test_names,
                 "msg":msg
             }
@@ -267,22 +332,23 @@ def add_test():
         if request.method=="GET":
             print("AAAAAAAAAAAAAAAAAAAAAAAAAAA")
         if request.method == "POST":
+            print("BBBBBBBBBBBBBBBBBBB POST ADD TEST")
             name = request.form["test_name"]
+            print(name)
             values = [[name, ""]]
             with connection:
                 with connection.cursor() as cursor:
-                    print(name)
-                    sql = f'insert into test(test_name, test_score) values (%s, %s);'
+
+                    # sql = f'insert into test(test_name, test_score) values (%s, %s);'
                     try:
-                        cursor.executemany(sql, values)
+                        # subject
+                        cursor.execute(f'insert into test(test_name, test_score) values (%s,%s);',(name, ""))
                     except:
-                        pass
+                        print("AAAASDASIDFUHAUFH UIW ")
                 connection.commit()
             cursor.close()
+                                                    
 
-            students_list = {
-
-            }
             with connection:
                 with connection.cursor() as cursor:
                     try:
@@ -294,6 +360,9 @@ def add_test():
                         print(rows2,"row2")
                         print(rows,"row")
                         students_list = []
+                        test_name = {
+
+                        }
                         try:
                             for i, row in enumerate(rows):
                                 student_id = row[0]
@@ -305,18 +374,19 @@ def add_test():
                                 for j, row in enumerate(rows2):
                                     test_name = row[0]
                                     test_score = row[1]
-                                    students_list[i]["test"][test_name] = test_score
-                                    print(students_list)
-                            
+                                    students_list[i]["test"][f"test{j+1}"] = test_score
+                                    test_names[f"test{j+1}"] = test_name
+                            print(students_list)
+
                         except:
-                            pass
+                            print("forbun")
                     except:
-                        pass
+                        print("db")
                 msg=""
             #     # パラメータの設定
                 params = {
                     "students" : students_list,
-                    # "test_names": test_names,
+                    "test_names": test_names,
                     "msg": msg
                 }
             return render_template("student_list.html", params=params)
@@ -501,14 +571,6 @@ def home():
     if request.method=="POST":
         return render_template("home.html", params=params)
     return redirect(url_for("login"))
-     
-@app.route("/selects", methods=["POST", "GET"])
-def select_class():
-    #データベースからその講師の担当授業一覧を持ってくる
-    if request.method == "GET":
-        return render_template("selects.html") #paramsの設定
-    if request.method == "POST":
-        return render_template("selects.html") #paramsの設定
     
     
 @app.route("/teacher_classes_setting", methods=["POST", "GET"])
@@ -548,7 +610,7 @@ def attendance_check():
 @app.route("/subject_select", methods=["POST", "GET"])
 def subject_select():
     if request.method=="GET":
-        print("subject_select, POST")
+        print("subject_select, GET")
         #DBからSUBJECTを持ってくる
         
         with connection:
@@ -586,4 +648,4 @@ def subject_select():
         print("subject_select, POST")
 
 if __name__ == "__main__":
-    app.run(port=12345, debug=True) #12345でerrorがでたら8000にする
+    app.run(port=12345, debug=True) # 12345でerrorがでたら8000にする

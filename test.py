@@ -8,6 +8,11 @@
 #     students[i][f"id{i}"] = id
 # print(students)
 
-students = [{'test': {'テスト': '', 'asd': '', 'as': '', 'あ ｓｄ': '', 'ｓｓｓ': '', '': '', 'ad': '', 'asdasd': '', 'asdasda': '', 'asdawd': '', 'asdawdasd': '', 'xac': '', 'sdasd': '', 'sad': '', 'xxxx': ''}, 'name': '古賀慶次郎', 'student_id': '2004230006'}, {'test': {'テスト': '', 'asd': '', 'as': '', 'あｓｄ': '', 'ｓｓｓ': '', '': '', 'ad': '', 'asdasd': '', 'asdasda': '', 'asdawd': '', 'asdawdasd': '', 'xac': '', 'sdasd': '', 'sad': '', 'xxxx': ''}, 'name': '西結都', 'student_id': '2004230011'}, {'test': {'テスト': '', 'asd': '', 'as': '', 'あｓｄ': '', 'ｓｓｓ': '', '': '', 'ad': '', 'asdasd': '', 'asdasda': '', 'asdawd': '', 'asdawdasd': '', 'xac': '', 'sdasd': '', 'sad': '', 'xxxx': ''}, 'name': '中村太一', 'student_id': '2004240012'}]
+# students = [{'test': {'テスト': '', 'asd': '', 'as': '', 'あ ｓｄ': '', 'ｓｓｓ': '', '': '', 'ad': '', 'asdasd': '', 'asdasda': '', 'asdawd': '', 'asdawdasd': '', 'xac': '', 'sdasd': '', 'sad': '', 'xxxx': ''}, 'name': '古賀慶次郎', 'student_id': '2004230006'}, {'test': {'テスト': '', 'asd': '', 'as': '', 'あｓｄ': '', 'ｓｓｓ': '', '': '', 'ad': '', 'asdasd': '', 'asdasda': '', 'asdawd': '', 'asdawdasd': '', 'xac': '', 'sdasd': '', 'sad': '', 'xxxx': ''}, 'name': '西結都', 'student_id': '2004230011'}, {'test': {'テスト': '', 'asd': '', 'as': '', 'あｓｄ': '', 'ｓｓｓ': '', '': '', 'ad': '', 'asdasd': '', 'asdasda': '', 'asdawd': '', 'asdawdasd': '', 'xac': '', 'sdasd': '', 'sad': '', 'xxxx': ''}, 'name': '中村太一', 'student_id': '2004240012'}]
 
-print(students[0]["test"].keys())
+# print(students[0]["test"].keys())
+
+a = ["test1", "test2", "test2","test4"]
+b = ["", "", "","100"]
+c = dict(zip(a,b))
+print(c)
