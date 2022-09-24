@@ -91,7 +91,7 @@ def register():
             except:
                     params["msg"] = "パスワードは数字４桁にしてください"
                     return render_template("register.html",params=params)
-            values = [[request.form["ID"], request.form["password"], request.form["teacher_name"], "", request.form["name_sub"], int(request.form["age"]), request.form["gender"], 2 ,1]]
+            values = [[request.form["ID"], request.form["password"], request.form["teacher_name"],request.form["name_sub"], int(request.form["age"]), request.form["gender"], 2 ,1]]
 
             with connection:
                 with connection.cursor() as cursor:
@@ -135,20 +135,21 @@ def login():
             with connection.cursor() as cursor:
                 try:
                     # データベースから値を選択
-                    cursor.execute("select * from teacher where id = %s and password = %s", (params["ID"], params["password"],))
+                    cursor.execute("select * from teacher where teacher_id = %s and password = %s", (params["ID"], params["password"],))
                     rows = cursor.fetchall()
 
                     try:
                         print(rows)###### 消す
                         print(rows[0])###### 消す
-                        id = rows[0][0]
-                        password = rows[0][4]
+                        id = rows[0][1]
+                        password = rows[0][-1]
+                        name = rows[0][2]
                         print(id)###### 消す
                         # IDとPASSWORDが一致した場合
                         if id == params["ID"] and password == params["password"]:
                             # ログイン認証
                             session["loggedin"] = True
-                            session["username"] = "DBについかする"
+                            session["username"] = name
                             session["user_id"] = id
                             print(session["user_id"])###### 消す
                             print(id)###### 消す
@@ -207,7 +208,7 @@ def logout():
     session["loggedin"] = None
     session["user_id"] = None
     session["username"] = None
-    return render_template("logout.html")
+    return render_template("login.html")
 
 @app.route("/student_list", methods=["GET", "POST"])
 def student_list():
@@ -216,13 +217,48 @@ def student_list():
         if request.method=="GET":
             msg = ""
             ##############
+            subject = request.form["subject"]
+            #subject がある学生でーたを持ってくる
+            with connection:
+                with connection.cursor() as cursor:
+                    try:
+                        # データベースから値を選択
+                        cursor.execute("select student_id, name FROM student where subject = %s", (subject))
+                        rows = cursor.fetchall()
+                        print(rows)
+                    except:
+                        print("a")
+            #f"select student_id, name, subject_id FROM student where subject = {subject}"
             # パラメータの設定
             params = {
                 "students": students,#データベースからもってくる
                 "test_names": test_names,
                 "msg":msg
             }
-            return render_template("student_list.html", params=params)          
+            return render_template("student_list.html", params=params)  
+        if request.method=="POST":
+            msg = ""
+            ##############
+            subject = request.form["subject"]
+            #subject がある学生でーたを持ってくる
+            with connection:
+                with connection.cursor() as cursor:
+                    try:
+                        # データベースから値を選択
+                        cursor.execute("select student_id, name FROM student where subject = %s", (subject))
+                        rows = cursor.fetchall()
+                        print(rows)
+                    except:
+                        print("a")
+            #f"select student_id, name, subject_id FROM student where subject = {subject}"
+            # パラメータの設定
+            params = {
+                "students": students,#データベースからもってくる
+                "test_names": test_names,
+                "msg":msg
+            }
+            return render_template("student_list.html", params=params)             
+
     #return redirect(url_for("login"))  
 
 @app.route("/add_test", methods=["GET", "POST"])
@@ -230,11 +266,6 @@ def add_test():
     # if session["loggedin"] == True:
         if request.method=="GET":
             print("AAAAAAAAAAAAAAAAAAAAAAAAAAA")
-            #############
-            ### db insert test table no name  ni ireru
-            ### db select test table
-            ### db parameter watasu
-            ### student = db kara student table mottekuru sosite sorewo parameter ni watas
         if request.method == "POST":
             name = request.form["test_name"]
             values = [[name, ""]]
@@ -248,24 +279,7 @@ def add_test():
                         pass
                 connection.commit()
             cursor.close()
-            with connection:
-                with connection.cursor() as cursor:
-                    sql = f'SELECT test_name FROM test'
-                    try:
-                        cursor.executemany(sql, values)
-                    except:
-                        pass
-                connection.commit()
-            cursor.close()
-            
-            test_names = {
 
-            }
-            ####
-            # student_list = {
-            #     "name" : {"student_names":"", "student_ids": "", "test_scores":"",}
-            # }
-            ####
             students_list = {
 
             }
@@ -280,7 +294,6 @@ def add_test():
                         print(rows2,"row2")
                         print(rows,"row")
                         students_list = []
-                        test_names = {}
                         try:
                             for i, row in enumerate(rows):
                                 student_id = row[0]
@@ -532,7 +545,45 @@ def attendance_check():
     if request.method=="POST":
         return render_template("attendance_check.html")
                 
-
+@app.route("/subject_select", methods=["POST", "GET"])
+def subject_select():
+    if request.method=="GET":
+        print("subject_select, POST")
+        #DBからSUBJECTを持ってくる
+        
+        with connection:
+                with connection.cursor() as cursor:
+                    try:
+                        print("AAAAAAAAAAAAAAAA")
+                        # データベースから値を選択
+                        if session["user_id"] == "000000":
+                            print("BBBBBBBBBBBBBBBBBB")
+                            cursor.execute("select subject from subjects")
+                            print("IIIIIIIIIIIIIIIIIIIIII")
+                            subjects = cursor.fetchall()
+                            print("JJJJJJJJJJJJJJJJJJJJJJ")
+                            print(subjects)
+                        else:
+                            print("CCCCCCCCCCC")
+                            cursor.execute("SELECT SUBJECT_ID FROM teacher where teacher_id = %s",(session["user_id"]))
+                            print("EEEEEEEEEEEEEE")
+                            subject_ids = cursor.fetchall()
+                            print("DDDDDDDDDDDDDD")
+                            print(subject_ids)
+                            print("FFFFFFFFFFFFFFFFFFF")
+                            cursor.execute("SeLECT SUBJECT FROM SUBJECTS where subject_id = %s", (subject_ids))
+                            print("GGGGGGGGGGGGGGGGGGGGGG")
+                            subjects = cursor.fetchall()
+                            print("HHHHHHHHHHHHHHHHHHHHHHHHHH")
+                            print(subjects)
+                    except:
+                        print("EXCEPTTTTT FROM SUBEJCT SELECT")
+                params = {
+                    "subjects": subjects
+                }
+        return render_template("subject_select.html", params=params)
+    if request.method=="POST":
+        print("subject_select, POST")
 
 if __name__ == "__main__":
     app.run(port=12345, debug=True) #12345でerrorがでたら8000にする
