@@ -11,17 +11,37 @@
         <div class="content">
         
               <header>
-                      <h1>{{ params.subjects }}授業の成績一覧</h1>
+                      <h1><a name="subject">{{ params.subject_name }}の成績一覧</a></h1>
                       <h3 style="color: red;">{{ params.msg }}</h3>
+                      <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addtest">
+                        テスト項目を追加
+                      </button>
                       
-                      <form action="/add_test" method="POST">
-                        
-                        <input type="text" name="test_name" required>
-                        <input type="submit" value="テスト項目を追加">
-                      </form>
+                      <!-- Modal -->
+                      <div class="modal fade" id="addtest" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+                        <div class="modal-dialog">
+                          <div class="modal-content">
+                            <div class="modal-header">
+                              <h5 class="modal-title" id="staticBackdropLabel">テスト項目の追加</h5>
+                              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <form action="/add_test" method="POST">
+                                        <label>テスト名</label>
+                                        <input type="text" name="test_name" required>
+                                <!-- </form> -->
+                            </div>
+                            <div class="modal-footer">
+                              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">閉じる</button>
+                              <input type="submit" class="btn btn-primary" value="追加">
+                        </form>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
 
                       <form action="/delete_test" method="POST">
-                                <input type="submit" value="テスト項目を削除">
+                                <input type="submit" class="btn btn-primary" value="テスト項目を削除">
                       </form>
 
               </header>
@@ -36,7 +56,9 @@
                         {% endfor %}
                         <th>出席率</th>
                         <th>評価備考</th>
-                        <td><a href="#edit_test_names">テストの名前を編集</a></td>
+                        <td><button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#edit_test_names">
+                                テストの名前を編集
+                      </button></td>
                         </tr>
               </div >
             
@@ -55,46 +77,71 @@
                         {% endfor %}
                               <td>{{ student.rate }}%</td>
                               <td>{{ student.note }}</td>
-                              <td><a href="#{{student.name}}">この生徒の点数を入力</a></td>
+                              <td><button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#{{student.name}}">
+                                        {{student.name}}の点数を入力
+                              </button></td>
                         </tr>
                 </div>
 
                 <div class="edit">
-                        <dialog id="edit_test_names">
-                                <form action="/edit_test_name" method="POST">
-                                        <h2>テスト名の編集</h2>
-                                        {% for value in params.students[0].test.keys() %}
-                                        <label> {{ key }} </label>
-                                        <input type="text" name="{{key}}_name" value="{{value}}">
-                                        {% endfor %}
-                                        <input type="submit" value="保存">
+                                <!-- Modal -->
+                                <div class="modal fade" id="edit_test_names" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+                                  <div class="modal-dialog">
+                                    <div class="modal-content">
+                                      <div class="modal-header">
+                                        <h5 class="modal-title" id="staticBackdropLabel">テスト名の編集</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                      </div>
+                                      <div class="modal-body">
+                                        <form action="/edit_test_name" method="POST">
+                                                <h2>テスト名の編集</h2>
+                                                {% for key, value in params.test_names.items() %}
+                                                <label> {{ value }} </label>
+                                                <input type="text" name="{{key}}_name" placeholder="名前を入力">
+                                                {% endfor %}
+                                      </div>
+                                      <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">閉じる</button>
+                                        <input type="submit" class="btn btn-primary" value="保存">
+                                  </form>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                              <!-- Modal -->
+                              <div class="modal fade" id="{{student.name}}" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+                                <div class="modal-dialog">
+                                  <div class="modal-content">
+                                    <div class="modal-header">
+                                      <h5 class="modal-title" id="staticBackdropLabel">テスト点数を入力</h5>
+                                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <form action="/edit_score" method="POST">
+                                                <h2>{{student.name}}</h2>
+                                                <input type="hidden" name="id" value="{{student.id}}">
+                
+                                                {% for key, value in params.students[0].test.items() %}
+                                                <label>{{key}}</label>
+                                        
+                                                    <input type="text" name="test_name" value="{{value}}">
+                                                {% endfor %}
+                                                <label>評価備考</label>
+                                                <textarea type="text" name="note" value="{{ student.note }}"></textarea>
+                                    </div>
+                                    <div class="modal-footer">
+                                      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">閉じる</button>
+                                      <input type="submit" class="btn btn-primary" value="保存">
                                 </form>
-                          <a href="#1">閉じる</a>
-                        </dialog>
-
-                        <dialog id="{{student.name}}">
-                          <form action="/edit_score" method="POST">
-                                <h2>{{student.name}}の成績を入力</h2>
-                                <input type="hidden" name="id" value="{{student.id}}">
-
-                                {% for value in params.students[0].test.values() %}
-                                {% for value2 in params.students[0].test.keys() %}
-                                <label>{{value2}}</label>
-                                {% endfor %}
-                                    <input type="text" name="test_name" value="{{value}}">
-                                {% endfor %}
-                                <label>評価備考</label>
-                                <textarea type="text" name="note" value="{{ student.note }}"></textarea>
-                                <input type="submit" value="保存">
-                          </form>
-                          <a href="#1">閉じる</a>
-                        </dialog>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
                 </div>    
                 {% endfor %}
                 </table>
         </div>
 
-        <p>{{ score111 }}</p>
 </body>
 
 </html>

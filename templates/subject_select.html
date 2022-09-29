@@ -11,9 +11,9 @@
 <body>
     <!-- <button onclick="history.back()" class="">戻る</button> -->
     <a href="/logout" type="button">ログアウト</a>
-    {% for subject in params.subjects %}
+    {% for subject in params.subject_list %}
     <form action="/student_list" method="POST">
-    <button type="submit" name="subject" value="{{subject[0]}}">
+    <input type="submit" name="subject" value="{{ subject }}">
     </form>
     {% endfor %}
 

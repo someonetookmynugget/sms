@@ -18,7 +18,7 @@ values(
     1,
     2,
     7,
-    1
+    2
 );
 
 insert into student (
@@ -41,7 +41,7 @@ values(
     1,
     2,
     7,
-    1
+    2
 );
 insert into student (
     student_id,
