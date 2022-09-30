@@ -15,3 +15,9 @@ bootstrap https://getbootstrap.com/docs/5.0/getting-started/introduction/
 
 
     teacher tale no major id iru?!?!
+
+
+
+hyouka 
+S~f
+計算で求めた評価を「推定：S」などにして、後から講師が変更できるようにもするselectメニューを使う

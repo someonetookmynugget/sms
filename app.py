@@ -290,8 +290,6 @@ def student_list():
 @app.route("/add_test", methods=["GET", "POST"])
 def add_test():
     # if session["loggedin"] == True:
-        if request.method=="GET":
-            print("AAAAAAAAAAAAAAAAAAAAAAAAAAA")
         if request.method == "POST":
             print("BBBBBBBBBBBBBBBBBBB POST ADD TEST")
             name = request.form["test_name"]
@@ -301,6 +299,7 @@ def add_test():
             students_list = []
             test_name = {   
                         }
+            msg = ""
             with connection:
                 with connection.cursor() as cursor:
                     print("aaaaaa")
@@ -315,15 +314,20 @@ def add_test():
                         student_db = cursor.fetchall()
                         print(student_db)
                         for student in student_db:
-                            students.append(student)
+                            students.append(student[0])
                         print(students,"student")
                     # corusor.execute(f"SELECT student_id from student where subject = %s",(session_subject))
                     try:
                         # subject###############################################################################################
-                        for student in students:
-                            cursor.execute(f'insert into test(test_name, test_score, student_id, subject) values (%s,%s,%s,%s);',(name, "",student, request.form["subject"]))
-                        cursor.execute(f'delete from test where id=(select max(id) from test)')
-                        cursor.execute(f'delete from test where id=(select max(id) from test)')
+                        cursor.execute(f"SELECT * from test where test_name = %s", (name, ))
+                        a = cursor.fetchall()
+                        if a == []:
+                            for student in students:
+                                cursor.execute(f'insert into test(test_name, test_score, student_id, subject) values (%s,%s,%s,%s);',(name, "",student, request.form["subject"]))
+                            # for i in range(0,len(students) - 1):
+                            #     cursor.execute(f'delete from test where id=(select max(id) from test)')
+                        else:
+                            msg = "同じテスト名は入力できません"
                     except:
                         print("AAAASDASIDFUHAUFH UIW ")
                 connection.commit()
@@ -342,6 +346,7 @@ def add_test():
                         test_names = {
 
                         }
+                        print(set(rows2))
                         try:
                             for i, row in enumerate(rows):
                                 student_id = row[0]
@@ -350,18 +355,20 @@ def add_test():
                                 students_list.append({"test":{}})
                                 students_list[i]["name"] = student_name
                                 students_list[i]["student_id"] = student_id
-                                for j, row in enumerate(rows2):
+                                for j, row in enumerate(set(rows2)):
                                     test_name = row[0]
+                                    print(test_name,"test_naaaaaaaaaaaaaaaaame")
                                     test_score = row[1]
                                     students_list[i]["test"][f"test{j+1}"] = test_score
                                     test_names[f"test{j+1}"] = test_name
+
+                                print(test_names)
                             print(students_list)
 
                         except:
                             print("forbun")
                     except:
                         print("db")
-                msg=""
             #     # パラメータの設定
                 params = {
                     "students" : students_list,
@@ -377,15 +384,29 @@ def add_test():
 def delete_test():
     # if session["loggedin"] == True:
         if request.method=="POST":
+            students = []
             students_list = []
             test_names = {}
             msg=""
             #############
-            with connection:            
+            with connection:
                 with connection.cursor() as cursor:
+                    cursor.execute("select id from subjects where subject = %s",(request.form["subject"],))
+                    print("id execute ")
+                    subject_ids = cursor.fetchall()
+                    print(subject_ids)
+                    for id in subject_ids:
+                        print(id[0])
+                        cursor.execute("select student_id, name FROM student where subject_id = %s", (id[0],))
+                        student_db = cursor.fetchall()
+                        print(student_db)
+                        for student in student_db:
+                            students.append(student[0])
+                    print(students,"student")
                     try:
                         # DELETE 
-                        cursor.execute("delete from test where id=(select max(id) from test)")
+                        for i in range(0, len(students)):
+                            cursor.execute("delete from test where id=(select max(id) from test)")
                     except:
                         print("AAAASDASIDFUHAUFH UIW ")
                 connection.commit()
@@ -396,7 +417,7 @@ def delete_test():
                 with connection.cursor() as cursor:
                     try:
                         # データベースから値を選択
-                        cursor.execute("SELECT test_name, test_score FROM test")
+                        cursor.execute("SELECT test_name, test_score, student_id FROM test")
                         rows2 = cursor.fetchall()
                         cursor.execute("SELECT student_id, name from student")
                         rows = cursor.fetchall()
@@ -443,7 +464,7 @@ def edit_score():
             # for student in students:
                 # 選択した学生と一致した場合
 ####################################################################################################### 続き                
-            id = request.form["id"]
+            id = request.form["student_id"]
             subject = request.form["subject"]
             with connection:            
                 with connection.cursor() as cursor:
@@ -453,25 +474,25 @@ def edit_score():
                         ######################################################################################
                         for test in tests:
                             test_name = test[0]
-                            print(request.form[test_name],"Aaaaaaaaaaaaaaaaaa")
+                            test_name = request.form[test_name]
+                            print(test_name)
+                            print(id)
+                            print(subject)
                             score = request.form[f"{test_name}_score"]
-                        print(tests)
+                            print(score)
+                            try:
+                                int(score)
+                                if len(score) >= 4:
+                                    raise
+                                cursor.execute(f"update test set test_score = %s where test_name = %s and student_id = %s and subject = %s",(score, test_name,id, subject,))
+                            except:
+                            
+                                msg="点数を数字で正しく入力してください"
+                            
                     except:
-                        print("AAAASDASIDFUHAUFH UIW ")
+                        print("asdasd ")
                 connection.commit()
             cursor.close()
-            score = request.form["score"]
-            print(id)
-            print(subject)
-            print(score)
-            print(test_name)
-            try:
-                int(score)
-                if len(score) >= 4:
-                    raise
-            except:
-            
-                msg="点数を数字で正しく入力してください"
                 # if student["id"] == request.form["id"]:
                 #     for i in range(1, len(student["test"])+1):
                 #         # 選択した学生のテストの点数を入れる
@@ -493,21 +514,13 @@ def edit_score():
                 #     # 備考追加
                 #     student["note"] = request.form["note"]    
                 #     break
-            with connection:            
-                with connection.cursor() as cursor:
-                    try:
-                        # update 
-                        cursor.execute("")
-                    except:
-                        print("AAAASDASIDFUHAUFH UIW ")
-                connection.commit()
-            cursor.close()
             with connection:
                 with connection.cursor() as cursor:
                     try:
                         # データベースから値を選択
-                        cursor.execute("SELECT test_name, test_score FROM test")
+                        cursor.execute("SELECT test_name, test_score, student_id FROM test")
                         rows2 = cursor.fetchall()
+                        print(rows2)
                         cursor.execute("SELECT student_id, name from student")
                         rows = cursor.fetchall()
 
@@ -522,6 +535,7 @@ def edit_score():
                                 for j, row in enumerate(rows2):
                                     test_name = row[0]
                                     test_score = row[1]
+                                    print(row[2], "AAAAAAAAAAAAAAAAAAAA")
                                     students_list[i]["test"][f"test{j+1}"] = test_score
                                     test_names[f"test{j+1}"] = test_name
                             print(students_list)
