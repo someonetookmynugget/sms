@@ -29,6 +29,7 @@
                                 <form action="/add_test" method="POST">
                                         <label>テスト名</label>
                                         <input type="text" name="test_name" required>
+                                        <input type="hidden" name="subject" value="{{ params.subject_name }}">
                                 <!-- </form> -->
                             </div>
                             <div class="modal-footer">
@@ -42,6 +43,7 @@
 
                       <form action="/delete_test" method="POST">
                                 <input type="submit" class="btn btn-primary" value="テスト項目を削除">
+                                <input type="hidden" name="subject" value="{{ params.subject_name }}">
                       </form>
 
               </header>
@@ -119,12 +121,17 @@
                                     <div class="modal-body">
                                         <form action="/edit_score" method="POST">
                                                 <h2>{{student.name}}</h2>
-                                                <input type="hidden" name="id" value="{{student.id}}">
-                
-                                                {% for key, value in params.students[0].test.items() %}
-                                                <label>{{key}}</label>
-                                        
-                                                    <input type="text" name="test_name" value="{{value}}">
+                                                <input type="hidden" name="id" value="{{student.student_id}}">
+                                                <input type="hidden" name="subject" value="{{ params.subject_name }}">
+
+                                                {% for key, value in params.test_names.items() %}
+                                                {% for key2, value2 in params.students[0].test.items() %}
+                                                {% if key == key2 %}
+                                                <label>{{value}}</label>
+                                                    <input type="hidden" name="{{value}}" value="{{value}}">
+                                                    <input type="text" name="{{value}}_score" placeholder="点数を入力" value="{{ value2 }}">
+                                                {% endif %}
+                                                {% endfor %}
                                                 {% endfor %}
                                                 <label>評価備考</label>
                                                 <textarea type="text" name="note" value="{{ student.note }}"></textarea>

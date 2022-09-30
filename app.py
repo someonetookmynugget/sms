@@ -181,26 +181,26 @@ def login():
 
 
 
-students = [
-            {"id":"2004230011", "name":"西結都","test":{},"note":"", "date":{"2022-09-01":"attend","2022-09-02":"attend","2022-09-03":"absence","2022-09-04":"attend","2022-09-05":"attend"},"rate":"","rate_history":{"2022-09-01":100, "2022-09-02":100,"2022-09-03":66.7,"2022-09-04":75,}},
-            {"id":"2222222222", "name":"古賀慶次郎","test":{},"note":"", "date":{"2022-09-01":"absence","2022-09-02":"attend","2022-09-03":"attend","2022-09-04":"absence","2022-09-05":"attend"},"rate":"","rate_history":{"2022-09-01":100, "2022-09-02":100,"2022-09-03":66.7,"2022-09-04":75,}},
-            {"id":"3333333333", "name":"中村太一","test":{},"note":"", "date":{"2022-09-01":"absence","2022-09-02":"attend","2022-09-03":"absence","2022-09-04":"absence","2022-09-05":"absence"},"rate":"","rate_history":{"2022-09-01":0, "2022-09-02":50,"2022-09-03":66.7,"2022-09-04":75,}},
-            ]
+# students = [
+#             {"id":"2004230011", "name":"西結都","test":{},"note":"", "date":{"2022-09-01":"attend","2022-09-02":"attend","2022-09-03":"absence","2022-09-04":"attend","2022-09-05":"attend"},"rate":"","rate_history":{"2022-09-01":100, "2022-09-02":100,"2022-09-03":66.7,"2022-09-04":75,}},
+#             {"id":"2222222222", "name":"古賀慶次郎","test":{},"note":"", "date":{"2022-09-01":"absence","2022-09-02":"attend","2022-09-03":"attend","2022-09-04":"absence","2022-09-05":"attend"},"rate":"","rate_history":{"2022-09-01":100, "2022-09-02":100,"2022-09-03":66.7,"2022-09-04":75,}},
+#             {"id":"3333333333", "name":"中村太一","test":{},"note":"", "date":{"2022-09-01":"absence","2022-09-02":"attend","2022-09-03":"absence","2022-09-04":"absence","2022-09-05":"absence"},"rate":"","rate_history":{"2022-09-01":0, "2022-09-02":50,"2022-09-03":66.7,"2022-09-04":75,}},
+#             ]
 #### test
 # test_name = {
 
 # }
 
 session_subject = ""
-for student in students:
-    attend = 0
-    total = len(student["date"])
-    for key, value in student["date"].items():
-        if value=="attend":
-            attend += 1
-        last_key_name = key
-    student["rate"] = round(attend / total * 100, 1)
-    student["rate_history"][f'{last_key_name}'] = student["rate"]
+# for student in students:
+#     attend = 0
+#     total = len(student["date"])
+#     for key, value in student["date"].items():
+#         if value=="attend":
+#             attend += 1
+#         last_key_name = key
+#     student["rate"] = round(attend / total * 100, 1)
+#     student["rate_history"][f'{last_key_name}'] = student["rate"]
     
 
 
@@ -218,19 +218,19 @@ def logout():
         "msg":""
     }
     return render_template("login.html",params=params)
-[]
 @app.route("/student_list", methods=["GET", "POST"])
 def student_list():
-
     # if session["loggedin"] == True:
-        if request.method=="GET":
-            print("stundet?list GET") 
+        # if request.method=="GET":
+        #     print("stundet?list GET") 
         if request.method=="POST":
             print("POST stundet_list")
+            test_names = {}
             msg = ""
             ##############
             session_subject = request.form["subject"]
             print(session_subject)
+            students = []
             students_list = []
             test_name = {   
                         }
@@ -244,17 +244,20 @@ def student_list():
                         cursor.execute("select id from subjects where subject = %s",(request.form["subject"],))
                         print("id execute ")
                         subject_ids = cursor.fetchall()
-                        print(subject_ids)
+                        print(subject_ids,"subject_id")
                         for id in subject_ids:
                             print(id[0])
                                     #データベースから値を選択
                             cursor.execute("select student_id, name FROM student where subject_id = %s", (id[0],))
-                            students = cursor.fetchall()
-                            print(students)
+                            student_db = cursor.fetchall()
+                            print(student_db)
+                            for student in student_db:
+                                students.append(student)
+                            print(students,"student")
 
                             cursor.execute("SELECT test_name, test_score FROM test")
                             test = cursor.fetchall()
-
+                            print(len(students),"asdasd")
                             for i, row in enumerate(students):
                                 student_id = row[0]
                                 student_name = row[1]
@@ -267,9 +270,13 @@ def student_list():
                                     test_score = row[1]
                                     students_list[i]["test"][f"test{j+1}"] = test_score
                                     test_names[f"test{j+1}"] = test_name
+
+                            
 ##################################################
                     except:
                         print("EXCEPT ki")
+            print(students_list.pop(-1))
+
             params = {
                 "students": students_list,#データベースからもってくる
                 "test_names": test_names,
@@ -290,13 +297,33 @@ def add_test():
             name = request.form["test_name"]
             print(name)
             values = [[name, ""]]
+            students = []
+            students_list = []
+            test_name = {   
+                        }
             with connection:
                 with connection.cursor() as cursor:
-
-                    # sql = f'insert into test(test_name, test_score) values (%s, %s);'
+                    print("aaaaaa")
+                    cursor.execute("select id from subjects where subject = %s",(request.form["subject"],))
+                    print("id execute ")
+                    subject_ids = cursor.fetchall()
+                    print(subject_ids)
+                    for id in subject_ids:
+                        print(id[0])
+                                #データベースから値を選択
+                        cursor.execute("select student_id, name FROM student where subject_id = %s", (id[0],))
+                        student_db = cursor.fetchall()
+                        print(student_db)
+                        for student in student_db:
+                            students.append(student)
+                        print(students,"student")
+                    # corusor.execute(f"SELECT student_id from student where subject = %s",(session_subject))
                     try:
-                        # subject
-                        cursor.execute(f'insert into test(test_name, test_score) values (%s,%s);',(name, ""))
+                        # subject###############################################################################################
+                        for student in students:
+                            cursor.execute(f'insert into test(test_name, test_score, student_id, subject) values (%s,%s,%s,%s);',(name, "",student, request.form["subject"]))
+                        cursor.execute(f'delete from test where id=(select max(id) from test)')
+                        cursor.execute(f'delete from test where id=(select max(id) from test)')
                     except:
                         print("AAAASDASIDFUHAUFH UIW ")
                 connection.commit()
@@ -339,6 +366,7 @@ def add_test():
                 params = {
                     "students" : students_list,
                     "test_names": test_names,
+                    "subject_name": request.form["subject"],
                     "msg": msg
                 }
             return render_template("student_list.html", params=params)
@@ -397,6 +425,7 @@ def delete_test():
             params = {
                 "students" : students_list,
                 "test_names": test_names,
+                "subject_name": request.form["subject"],
                 "msg": msg
             }
             return render_template("student_list.html", params=params)
@@ -414,7 +443,35 @@ def edit_score():
             # for student in students:
                 # 選択した学生と一致した場合
 ####################################################################################################### 続き                
-            print(request.form["id"])
+            id = request.form["id"]
+            subject = request.form["subject"]
+            with connection:            
+                with connection.cursor() as cursor:
+                    try:
+                        cursor.execute(f"select test_name from test where subject = %s",(subject,))
+                        tests = cursor.fetchall()
+                        ######################################################################################
+                        for test in tests:
+                            test_name = test[0]
+                            print(request.form[test_name],"Aaaaaaaaaaaaaaaaaa")
+                            score = request.form[f"{test_name}_score"]
+                        print(tests)
+                    except:
+                        print("AAAASDASIDFUHAUFH UIW ")
+                connection.commit()
+            cursor.close()
+            score = request.form["score"]
+            print(id)
+            print(subject)
+            print(score)
+            print(test_name)
+            try:
+                int(score)
+                if len(score) >= 4:
+                    raise
+            except:
+            
+                msg="点数を数字で正しく入力してください"
                 # if student["id"] == request.form["id"]:
                 #     for i in range(1, len(student["test"])+1):
                 #         # 選択した学生のテストの点数を入れる
@@ -439,7 +496,7 @@ def edit_score():
             with connection:            
                 with connection.cursor() as cursor:
                     try:
-                        # DELETE 
+                        # update 
                         cursor.execute("")
                     except:
                         print("AAAASDASIDFUHAUFH UIW ")
@@ -479,6 +536,7 @@ def edit_score():
             params = {
                 "students": students_list,
                 "test_names": test_names,
+                "subject_name": subject,
                 "msg": msg
             }             
         return render_template("student_list.html", params=params)        
