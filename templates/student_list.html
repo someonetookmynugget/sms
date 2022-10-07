@@ -69,22 +69,31 @@
             
           
                 <div class="info">
-                        
-                        <form action="/edit_score" method="POST">
                         {% for student in params.students %}
+
                         <tr>
                         
                               <td><a href="/view_profile/{{ student.student_id }}">{{ student.student_id }}</a></td>
                               <td>{{ student.name }}</td>
-                        
-                        {% for key, value in params.students[0].test.items() %}
-                            
+                        {% for key, value in student.test.items() %}
                               <td>
-                                <input type="hidden" name="subject" value="{{params.subject_name}}">
-                                <input type="hidden" name="student_id" value="{{ student.student_id}}">
-                                <input type="text" name="{{key}}_score">
-
-
+                                <form action="/edit_score" method="POST">
+                                  {% for key2, value2 in params.test_names.items() %}
+                                    {% if key == value2 %}
+                                      <input type="hidden" name="subject" value="{{ params.subject_name }}">
+                                      <input type="hidden" name="student_id" value="{{ student.student_id }}">
+                                      <input type="hidden" name="test_name" value="{{ value2 }}"> 
+                                    {% endif %}
+                                  {% endfor %}
+                                  
+                                  {% if value != "" %}
+                                    <input type="text" name="test_score" value="{{ value }}点">
+                                  {% else %}
+                                    <input type="text" name="test_score" value="{{ value }}">
+                                  {% endif %}
+                                  
+                                  <input type="submit" value="保存">
+                                </form>
                               </td>
                         
                         {% endfor %}
@@ -105,8 +114,6 @@
                             
                         </tr>
                         {% endfor %}
-                        <input type="submit" value="保存">
-                      </form>
                 </div>
                 
                 <div class="edit">
@@ -119,17 +126,16 @@
                                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                       </div>
                                       <div class="modal-body">
-                                        <form action="/edit_test_name" method="POST">
                                                 <h2>テスト名の編集</h2>
                                                 {% for key, value in params.test_names.items() %}
+                                                <form action="/edit_test_name" method="POST">
                                                 <label> {{ value }} </label>
-                                                <input type="text" name="{{key}}_name" placeholder="名前を入力">
+                                                <input type="hidden" name="current_test_name" value="{{value}}">
+                                                <input type="hidden" name="subject" value="{{ params.subject_name }}">
+                                                <input type="text" name="new_test_name" value="{{value}}" placeholder="名前を入力">
+                                                <input type="submit" class="btn btn-primary" value="保存">
+                                              </form>
                                                 {% endfor %}
-                                      </div>
-                                      <div class="modal-footer">
-                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">閉じる</button>
-                                        <input type="submit" class="btn btn-primary" value="保存">
-                                  </form>
                                       </div>
                                     </div>
                                   </div>
