@@ -18,3 +18,14 @@ values(
     1,
     2
 );
+
+insert into subjects(
+    subject,
+    department_id,
+    major_id
+    )
+values(
+    '数学',
+    1,
+    2
+);

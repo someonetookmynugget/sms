@@ -743,15 +743,19 @@ def teacher_classes_setting():
                             if teacher[0] not in teachers:
                                 teachers.append(teacher[0])
 
-                        # 学年の選択
-
                         # 選考の取得
                         cursor.execute("select major from majors order by id asc")
                         majors_db = cursor.fetchall()
                         for major in majors_db:
                             if major[0] not in majors:
                                 majors.append(major[0])
-                        
+                        # 授業一覧を取得
+                        cursor.execute("select subject from subjects order by id asc")
+                        subjects_db = cursor.fetchall()
+                        for subject in subjects_db:
+                            if subject[0] not in subjects:
+                                subjects.append(subject[0])
+                        #　パラメーターの設定
                         params={
                         "teachers": teachers, #dbから講師一覧
                         "majors":majors,
@@ -762,63 +766,159 @@ def teacher_classes_setting():
                         "subjects":subjects
                         }
                     except:
-                        pass
-                    print("aaaaa")###### 消す
+                        print("something went wrong in teacher_classes_setting GET")
 
                     return render_template("teacher_list.html", params=params)
         if request.method == "POST":
+            print("teacher_classes_setting PSOT")###### 消す
             major = request.form["major"]
             grade = request.form["grade"]
             teacher = request.form["teacher"]
+            print(major)
+            print(grade)
+            print(teacher)
+            checked_subjects = []
             with connection:
                 with connection.cursor() as cursor:
                     if major != "0" and grade != "0"and teacher != "0":
+                        print("dododododo")
                         select_grade = grade
                         select_major = major 
                         select_teacher = teacher
+
+                        # 専攻のIDを取得
                         cursor.execute("select id from majors where grade = %s and major = %s order by id asc",(grade[0],major,))
                         major_id = cursor.fetchall()
+
+                        # 専攻のIDがある授業を取得
                         cursor.execute("select subject from subjects where major_id = %s order by id asc",(major_id[0],))
                         subjects_db = cursor.fetchall()
                         for subject in subjects_db:
                             subjects.append(subject[0])
-
-
-
+                        # 先生にすでに登録されている授業IDを取得
+                        cursor.execute("select subject_id from teacher where name = %s",(teacher,))
+                        subject_ids = cursor.fetchall()
+                        for subject in subject_ids:
+                            cursor.execute("select subject from subjects where id = %s", (subject[0],))
+                            subjects_db = cursor.fetchall()
+                            for subject2 in subjects_db:
+                                if subject2[0] not in checked_subjects:
+                                    checked_subjects.append(subject2[0])
+                        print(checked_subjects)
 
                     else:
                         msg = "選択されていない項目があります"
-
-                    print("teacher_classes_setting PSOT")###### 消す
                     try:
-                        # データベースから値を選択
                         # 講師を取得
                         cursor.execute("select name from teacher order by id asc")
                         teachers_db = cursor.fetchall()
-                        for teacher in teachers_db:
-                            if teacher[0] not in teachers:
-                                teachers.append(teacher[0])
-                        # 学年の選択
+                        for teacher_db in teachers_db:
+                            if teacher_db[0] not in teachers:
+                                teachers.append(teacher_db[0])
+
                         # 選考の取得
                         cursor.execute("select major from majors order by id asc")
                         majors_db = cursor.fetchall()
-                        for major in majors_db:
-                            if major[0] not in majors:
-                                majors.append(major[0])
+                        for m_d in majors_db:
+                            if m_d[0] not in majors:
+                                majors.append(m_d[0])
 
-                        params={
+                    except:
+                        print("something went wrong in teacher_classes_setting POST")
+                    params={
                         "teachers": teachers, #dbから講師一覧
                         "majors":majors,
                         "select_teacher" : select_teacher,
                         "select_grade" : select_grade,
                         "select_major" : select_major,
                         "msg": msg,
-                        "subjects":subjects
+                        "subjects":subjects,
+                        "checked_subjects" : checked_subjects
                         }
-                    except:
-                        print("something went wrong in teacher_classes_setting POST")
-                    print("aaaaa")###### 消す
             return render_template("teacher_list.html", params=params)
+
+
+@app.route("/form_check", methods=["POST"])
+def form_check():
+    select_grade = "学年選択"
+    select_teacher = "講師選択"
+    select_major = "専攻選択"
+    if request.method=="POST":
+        major = request.form["major"]
+        grade = request.form["grade"]
+        teacher = request.form["teacher"]
+        check_list = request.form.getlist("check")
+        checked_subjects = []
+        subjects = [] 
+        teachers = []
+        majors = [] 
+        msg = ""
+        with connection:
+            with connection.cursor() as cursor:
+                    # select_grade = grade
+                    # select_major = major 
+                    # select_teacher = teacher
+
+                    # # 専攻のIDを取得
+                    # cursor.execute("select id from majors where grade = %s and major = %s order by id asc",(grade[0],major,))
+                    # major_id = cursor.fetchall()
+
+                    # # 専攻のIDがある授業を取得
+                    # cursor.execute("select subject from subjects where major_id = %s order by id asc",(major_id[0],))
+                    # subjects_db = cursor.fetchall()
+                    # for subject in subjects_db:
+                    #     subjects.append(subject[0])
+
+                    # 先生にすでに登録されている授業IDを取得
+                    cursor.execute("select subject_id from teacher where name = %s",(teacher,))
+                    subject_ids = cursor.fetchall()
+                    for subject in subject_ids:
+                        cursor.execute("select subject from subjects where id = %s", (subject[0],))
+                        subjects_db = cursor.fetchall()
+                        for subject2 in subjects_db:
+                            if subject2[0] not in checked_subjects:
+                                checked_subjects.append(subject2[0])
+                    for check in check_list:
+                        #　もし新しく担当授業が追加されたらTeacherTABLEにINSERTする、(teacher_id, name, name_sub, age, gender, subject_id, major_id, password)
+                        #  subject と　Major以外の情報を持って来るSQL　cursor.execute("select teacher_id, name, name_sub, age, gender, password from teacher where name = %s"), (teacher,))
+
+                        if check not in checked_subjects:
+                            #check(授業)のidとその授業のmajor_idをとってくる
+                                #major_idでFOR文まわしてINSERTしていく
+                            cursor.execute("insert into teacher")
+                try:
+                    # 講師を取得
+                    cursor.execute("select name from teacher order by id asc")
+                    teachers_db = cursor.fetchall()
+                    for teacher in teachers_db:
+                        if teacher[0] not in teachers:
+                            teachers.append(teacher[0])
+
+                    # 選考の取得
+                    cursor.execute("select major from majors order by id asc")
+                    majors_db = cursor.fetchall()
+                    for major in majors_db:
+                        if major[0] not in majors:
+                            majors.append(major[0])
+                    #　パラメーターの取得
+                except:
+                    print("something went wrong in teacher_classes_setting POST")
+                params={
+                "teachers": teachers,
+                "majors":majors,
+                "select_teacher" : select_teacher,
+                "select_grade" : select_grade,
+                "select_major" : select_major,
+                "msg": msg,
+                "subjects":subjects,
+                "checked_subjects" : checked_subjects
+                }
+        return render_template("teacher_list.html", params=params)
+
+
+
+
+
 @app.route("/attendance_check", methods=["POST", "GET"])       
 def attendance_check():
     if request.method=="GET":

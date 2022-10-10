@@ -17,7 +17,7 @@
         {% if params.select_teacher == "講師選択" %}
         <option value="0" selected>{{params.select_teacher}}</option>
         {% else %}
-        <option value="0" selected>{{params.select_teacher}}  を選択中</option>
+        <option value="{{params.select_teacher}}" selected>{{params.select_teacher}}  を選択中</option>
         {% endif %}
         {% for teacher in params.teachers %}
         <option value="{{ teacher }}">{{teacher}}</option>
@@ -27,7 +27,7 @@
         {% if params.select_grade == "学年選択" %}
         <option value="0" selected>{{params.select_grade}}</option>
         {% else %}
-        <option value="0" selected>{{params.select_grade}}  を選択中</option>
+        <option value="{{params.select_grade}}" selected>{{params.select_grade}}  を選択中</option>
         {% endif %}
         <option value="1年生">1年生</option>
         <option value="2年生">2年生</option>
@@ -40,7 +40,7 @@
         {% if params.select_major == "専攻選択" %}
         <option value="0" selected>{{params.select_major}}</option>
         {% else %}
-        <option value="0" selected>{{params.select_major}}  を選択中</option>
+        <option value="{{params.select_major}}" selected>{{params.select_major}}  を選択中</option>
         {% endif %}
         {% for major in params.majors %}
         <option value="{{ major }}">{{major}}</option>
@@ -48,18 +48,44 @@
       </select>
       <button type="submit" class="btn btn-primary">適用</button>
     </form>
+<!-- もしすでに設定されている授業だったらデフォルトでチェックを入れておく -->
+    <form action="/form_check" method="POST">
+    {% for subject in params.subjects %}
+    {% if subject in params.checked_subjects %}
+    <div class="form-check">
+
+      <input type="hidden" name="teacher" value="{{params.select_teacher}}">
+      <input type="hidden" name="major" value="{{params.select_major}}">
+      <input type="hidden" name="grade" value="{{params.select_grade}}">
+      <input class="form-check-input" name="check" type="checkbox" value="{{subject}}" id="checkbox{{loop.index}}" checked>
+      <label class="form-check-label" for="checkbox{{loop.index}}">{{subject}}</label>
+      
+    </div>
+    {% else %}
+    <div class="form-check">
+
+      <input type="hidden" name="teacher" value="{{params.select_teacher}}">
+      <input type="hidden" name="major" value="{{params.select_major}}">
+      <input type="hidden" name="grade" value="{{params.select_grade}}">
+      <input class="form-check-input" name="check" type="checkbox" value="{{subject}}" id="checkbox{{loop.index}}">
+      <label class="form-check-label" for="checkbox{{loop.index}}">{{subject}}</label>
+      
+    </div>
+    {% endif %}
+    {% endfor %}
+    
 
     <div class="form-check">
 
-      {% for subject in params.subjects %}
       <input type="hidden" name="teacher" value="{{params.select_teacher}}">
-      <input class="form-check-input" type="checkbox" value="{{subject}}" id="flexCheckDefault">
-      <label class="form-check-label" for="flexCheckDefault">
+      <input type="hidden" name="major" value="{{params.select_major}}">
+      <input type="hidden" name="grade" value="{{params.select_grade}}">
+      <input class="form-check-input" name="check" type="checkbox" value="test1" id="flexCheckDefault">
+      <label class="form-check-label" for="flexCheckDefault">test1</label>
       
-      {{subject}}
-      {% endfor %}
-      </label>
     </div>
+    <button type="submit" class="btn btn-primary">設定完了</button>
+    </form>
 </body>
 </html>
 
