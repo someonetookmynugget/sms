@@ -51,7 +51,10 @@
 <!-- もしすでに設定されている授業だったらデフォルトでチェックを入れておく -->
     <form action="/form_check" method="POST">
     {% for subject in params.subjects %}
-    {% if subject in params.checked_subjects %}
+    {% if not params.checked_subjects == {} %}
+      {% for major, sub_name in params.checked_subjects.items() %}
+      {% for sub in sub_name %}
+      {% if major == params.select_major and subject == sub %}
     <div class="form-check">
 
       <input type="hidden" name="teacher" value="{{params.select_teacher}}">
@@ -61,6 +64,10 @@
       <label class="form-check-label" for="checkbox{{loop.index}}">{{subject}}</label>
       
     </div>
+      {% endif %}
+      {% endfor %}
+      {% endfor %}
+
     {% else %}
     <div class="form-check">
 
@@ -73,17 +80,6 @@
     </div>
     {% endif %}
     {% endfor %}
-    
-
-    <div class="form-check">
-
-      <input type="hidden" name="teacher" value="{{params.select_teacher}}">
-      <input type="hidden" name="major" value="{{params.select_major}}">
-      <input type="hidden" name="grade" value="{{params.select_grade}}">
-      <input class="form-check-input" name="check" type="checkbox" value="test1" id="flexCheckDefault">
-      <label class="form-check-label" for="flexCheckDefault">test1</label>
-      
-    </div>
     <button type="submit" class="btn btn-primary">設定完了</button>
     </form>
 </body>
