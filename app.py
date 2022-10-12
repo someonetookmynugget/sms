@@ -793,7 +793,6 @@ def teacher_classes_setting():
                         # 専攻のIDを取得
                         cursor.execute("select id from majors where grade = %s and major = %s order by id asc",(grade[0],major,))
                         major_id = cursor.fetchall()
-
                         # 専攻のIDがある授業を取得
                         cursor.execute("select subject from subjects where major_id = %s order by id asc",(major_id[0],))
                         subjects_db = cursor.fetchall()
@@ -802,17 +801,19 @@ def teacher_classes_setting():
                         # 先生にすでに登録されている授業IDを取得
                         cursor.execute("select subject_id from teacher where name = %s and major_id = %s",(teacher, major_id[0],))
                         subject_ids = cursor.fetchall()
-                        print(subject_ids)
+                        print(subject_ids,"sv")
+                        print(subjects)
                         for subject in subject_ids:
                             cursor.execute("select subject from subjects where id = %s", (subject[0],))
                             subjects_db = cursor.fetchall()
                             for subject2 in subjects_db:
-                                if subject2[0] not in checked_subjects.values():
-                                    if major not in checked_subjects.keys():
-                                        checked_subjects[f"{major}"] = []
-                                        checked_subjects[f"{major}"].append(subject2[0])
-                                    else:
-                                        checked_subjects[f"{major}"].append(subject2[0])
+                                # for sub_list in checked_subjects.values():
+                                #     if subject2[0] not in sub_list:
+                                #         for major_list in checked_subjects.keys():
+                                # if major not in major_list:
+                                checked_subjects[f"{major}"] = []
+                                if subject2[0] not in checked_subjects[f"{major}"]:
+                                    checked_subjects[f"{major}"].append(subject2[0])
                         print(checked_subjects)
 
                     else:
@@ -886,74 +887,140 @@ def form_check():
                     cursor.execute("select subject from subjects where id = %s", (subject[0],))
                     subjects_db = cursor.fetchall()
                     for subject2 in subjects_db:
-                        if subject2[0] not in checked_subjects.values():
-                            if major not in checked_subjects.keys():
-                                checked_subjects[f"{major}"] = []
-                                if subject2[0] not in checked_subjects[f"{major}"]:
-                                    checked_subjects[f"{major}"].append(subject2[0])
-                            else:
-                                if subject2[0] not in checked_subjects[f"{major}"]:
-                                    checked_subjects[f"{major}"].append(subject2[0])
+                        print(subject2,"subject2")
+                        print(subject , "subject")
+                        # for sub_list in checked_subjects.values():
+                        #     print(sub_list,"sub_list")
+                        #     if subject2[0] not in sub_list:
+                        #         print(subject2[0],"subject2[0]")
+                        #         for major_list in checked_subjects.keys():
+                        #             print(major_list,"major_list")
+                        #             if major not in major_list:
+                        #                 print(major,"major")
+                        checked_subjects[f"{major}"] = []
+                        if subject2[0] not in checked_subjects[f"{major}"]:
+                            checked_subjects[f"{major}"].append(subject2[0])
+                        # else:
                 print(checked_subjects,"chekced")
 
+                # インサート文
+                for check in check_list:
+                    print(check,"check")
+                    cursor.execute("select id from majors where major = %s and grade = %s", (major, grade[0],))
+                    major_db = cursor.fetchall()  
+                    print(major_db[0][0])                      
+                    cursor.execute("select id from subjects where major_id = %s and subject = %s",(major_db[0][0], check))
+                    subject_ids = cursor.fetchall()
+                    print(subject_ids, "subject_idsss")
+                    cursor.execute("select exists (select * from teacher where subject_id = %s and major_id = %s)",(subject_ids[0][0],major_db[0][0],))
+                    result = cursor.fetchone()
+                    print(result)
+                    if result[0] == False:
+                        #insert
+                        cursor.execute("select teacher_id, name, name_sub, age, gender, password from teacher where name = %s", (teacher,))
+                        teacher_info = cursor.fetchall()
+                        cursor.execute("insert into teacher(teacher_id, name, name_sub, age, gender, password, subject_id, major_id) values(%s, %s, %s, %s, %s, %s, %s, %s)",(teacher_info[0][0], teacher_info[0][1],teacher_info[0][2],teacher_info[0][3],teacher_info[0][4],teacher_info[0][5], subject_ids[0][0], major_db[0][0]))
 
 
+                # delete 文
+                for check in check_list:
+                    # check sareta subject id 
+                    print(check,"check")
+                    cursor.execute("select id from majors where major = %s and grade = %s", (major, grade[0],))
+                    major_db = cursor.fetchall()  
+                    print(major_db[0][0])                      
+                    cursor.execute("select id from subjects where major_id = %s and subject = %s",(major_db[0][0], check))
+                    check_subject_ids = cursor.fetchall()
+                    print(check_subject_ids, "subject_idsss")
+##############################################################
+                    #teacher no subject_id ga check sareta subject ID にない時にDELETE
+
+                    ####error
+                    cursor.execute("select subject_id from teacher where major_id = %s",(major_db[0][0]))
+                    teacher_subject_ids = cursor.fethcall()
+                    print(teacher_subject_ids,"teacher_sub id")
+
+
+                # try:
+#                     for check in check_list:
+#                         for sub_list in checked_subjects.values():
+#                             if check not in sub_list:
+#                             #　もし新しく担当授業が追加されたらTeacherTABLEにINSERTする、(teacher_id, name, name_sub, age, gender, subject_id, major_id, password)
+#                                 cursor.execute("select id from majors where major = %s and grade = %s", (major, grade[0],))
+#                                 major_db = cursor.fetchall()
+
+#                                 cursor.execute("select subject from subjects where major_id = %s", (major_db[0][0],))
+#                                 sub_name = cursor.fetchall()
+#                                 print("AAAAAAAAAAAAA")
+#                                 for sub in sub_name:
+#                                     print(sub[0], "subb")
+# ########################    #############################################################################################
+#                                     print(list(checked_subjects.values())[0][0], "lsit")
+#                                     for sub_list in checked_subjects.values():
+
+#                                         if sub[0] not in sub_list:
+#                                             print(checked_subjects,"checked_subjects")
+#                                             print(sub[0])
+
+#                                             cursor.execute("select id from subjects where subject = %s", (sub[0],))
+#                                             subject_id = cursor.fetchall()
+
+#                                             cursor.execute("select teacher_id, name, name_sub, age, gender, password from teacher where name = %s", (teacher,))
+#                                             teacher_info = cursor.fetchall()
+
+#                                             cursor.execute("insert into teacher(teacher_id, name, name_sub, age, gender, password, subject_id, major_id) values(%s, %s, %s, %s, %s, %s, %s, %s)",(teacher_info[0][0], teacher_info[0][1],teacher_info[0][2],teacher_info[0][3],teacher_info[0][4],teacher_info[0][5], subject_id[0], major_db[0][0]))
+#                                             for sub_list in checked_subjects.values():
+#                                                 if sub[0] not in sub_list:
+#                                                     for major_list in checked_subjects.keys():
+#                                                         if major not in major_list:
+#                                                             checked_subjects[f"{major}"] = []
+#                                                             if sub[0] not in checked_subjects[f"{major}"]:
+#                                                                 checked_subjects[f"{major}"].append(sub[0])
+#                                                         else:
+#                                                             if sub[0] not in checked_subjects[f"{major}"]:
+# #                                                                 checked_subjects[f"{major}"].append(sub[0])
+#                             else:
+#                                 print("追加されない")
+#                 except:
+#                     pass
+                print(checked_subjects,"cgheecj")
                 try:
-                    for check in check_list:
-                        if check not in checked_subjects.values():
-                        #　もし新しく担当授業が追加されたらTeacherTABLEにINSERTする、(teacher_id, name, name_sub, age, gender, subject_id, major_id, password)
-                            cursor.execute("select id from majors where major = %s and grade = %s", (major, grade[0],))
-                            major_db = cursor.fetchall()
+                    print(grade[0])
+                    print(major)
+                    cursor.execute("select id from majors where major = %s and grade = %s", (major, grade[0],))
+                    major_db = cursor.fetchall()
+                    print(major_db,"major_db")
+                    cursor.execute("select subject_id from teacher where name = %s and major_id = %s",(teacher, major_db[0][0],))
+                    subject_ids = cursor.fetchall()
+                    print(subject_ids,"subject_od")
+                    for subject_id in subject_ids:
+                        print(subject_id)
+                        cursor.execute("select subject, major_id from subjects where major_id = %s", (major_db[0][0],))
+                        subjects = cursor.fetchall()
+                        print(subjects,"subjects")
+                    
+                    # for checked in checked_subjects:
+                    #     if checked not in check_list:
+                    #         cursor.execute("select id from majors where major = %s and grade = %s", (major, grade[0],))
+                    #         major_db = cursor.fetchall()
+                    #         print(major_db[0][0])
 
-                            cursor.execute("select subject from subjects where major_id = %s", (major_db[0][0],))
-                            sub_name = cursor.fetchall()
-                            print("AAAAAAAAAAAAA")
-                            for sub in sub_name:
-                                print(sub[0])
-#####################################################################################################################
-                                print(list(checked_subjects.values()))
+                    #         cursor.execute("select subject from subjects where major_id = %s", (major_db[0][0],))
+                    #         sub_name = cursor.fetchall()
+                    #         print(sub_name,"sub_name")
+                    #         for sub in sub_name:
+                    #             print(sub,"sub")
+                    #             if sub[0] not in check_list:
+                    #                 cursor.execute("select id from subjects where subject = %s and major_id = %s", (sub[0], major_db[0][0],))
+                    #                 subject_id = cursor.fetchall()
 
-                                if sub[0] not in list(checked_subjects.values()):
-                                    print(checked_subjects,"checked_subjects")
-                                    print(sub[0])
-
-                                    cursor.execute("select id from subjects where subject = %s", (sub[0],))
-                                    subject_id = cursor.fetchall()
-
-                                    cursor.execute("select teacher_id, name, name_sub, age, gender, password from teacher where name = %s", (teacher,))
-                                    teacher_info = cursor.fetchall()
-
-                                    cursor.execute("insert into teacher(teacher_id, name, name_sub, age, gender, password, subject_id, major_id) values(%s, %s, %s, %s, %s, %s, %s, %s)",(teacher_info[0][0], teacher_info[0][1],teacher_info[0][2],teacher_info[0][3],teacher_info[0][4],teacher_info[0][5], subject_id[0], major_db[0][0]))
-                                    if sub[0] not in checked_subjects.values():
-                                        if major not in checked_subjects.keys():
-                                            checked_subjects[f"{major}"] = []
-                                            if sub[0] not in checked_subjects[f"{major}"]:
-                                                checked_subjects[f"{major}"].append(sub[0])
-                                        else:
-                                            if sub[0] not in checked_subjects[f"{major}"]:
-                                                checked_subjects[f"{major}"].append(sub[0])
-                except:
-                    pass
-                print(checked_subjects)
-                try:
-                    for checked in checked_subjects:
-                        if checked not in check_list:
-                            cursor.execute("select id from majors where major = %s and grade = %s", (major, grade[0],))
-                            major_db = cursor.fetchall()
-                            print(major_db[0][0])
-
-                            cursor.execute("select subject from subjects where major_id = %s", (major_db[0][0],))
-                            sub_name = cursor.fetchall()
-                            print(sub_name,"sub_name")
-                            for sub in sub_name:
-                                print(sub,"sub")
-                                if sub[0] not in check_list:
-                                    cursor.execute("select id from subjects where subject = %s and major_id = %s", (sub[0], major_db[0][0],))
-                                    subject_id = cursor.fetchall()
-                                    print(subject_id,"subject_id")
-                                    cursor.execute("delete from teacher where subject_id = %s and major_id = %s",(subject_id[0][0], major_db[0][0],))
-                                    checked_subjects.remove(sub[0])
+                    #                 print(subject_id,"subject_id")
+                    #                 cursor.execute("delete from teacher where subject_id = %s and major_id = %s",(subject_id[0][0], major_db[0][0],))
+                    #                 print("delete_success")
+                    #                 checked_subjects.remove(sub[0])
                     print(checked_subjects)
+                    print(check_list)
+                    print(subjects)
                 except:
                     pass
                 try:        

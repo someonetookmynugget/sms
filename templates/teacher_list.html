@@ -64,6 +64,16 @@
       <label class="form-check-label" for="checkbox{{loop.index}}">{{subject}}</label>
       
     </div>
+      {% else %}
+        <div class="form-check">
+
+          <input type="hidden" name="teacher" value="{{params.select_teacher}}">
+          <input type="hidden" name="major" value="{{params.select_major}}">
+          <input type="hidden" name="grade" value="{{params.select_grade}}">
+          <input class="form-check-input" name="check" type="checkbox" value="{{subject}}" id="checkbox{{loop.index}}">
+          <label class="form-check-label" for="checkbox{{loop.index}}">{{subject}}</label>
+
+        </div>
       {% endif %}
       {% endfor %}
       {% endfor %}
