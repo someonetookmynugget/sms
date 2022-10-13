@@ -65,16 +65,16 @@ def register():
             }
             try:
                 if len(str(request.form["ID"])) != 6 and len(str(request.form["password"])) != 4:
-                    params["msg"] = "IDは数字6桁、パスワードは数字４桁に設定してください"
+                    params["msg"] = "講師番号は数字6桁、パスワードは数字４桁に設定してください"
                     return render_template("register.html",params=params)
                 elif re.compile('[0-9]+').fullmatch(request.form["teacher_name"]) == None and re.compile('[０-９]+').fullmatch(request.form["teacher_name"]) != None and re.compile('[ａ-ｚＡ-Ｚ]+').fullmatch(request.form["teacher_name"]) != None:
                     params["msg"] = "名前を正しく入力してください"
                     return render_template("register.html",params=params)
                 elif re.compile('[\u3041-\u309F]+').fullmatch(request.form["name_sub"]) == None:
-                    params["msg"] = "ふりがなをひらがなで入力してください"
+                    params["msg"] = "ふりがなを入力してください"
                     return render_template("register.html",params=params)
                 elif len(str(request.form["ID"])) != 6:
-                    params["msg"] = "ID数字6桁にしてください"
+                    params["msg"] = "講師番号は数字6桁にしてください"
                     return render_template("register.html",params=params)
                 elif len(str(request.form["password"])) != 4:
                     params["msg"] = "パスワードは数字４桁にしてください"
@@ -90,8 +90,9 @@ def register():
                     return render_template("register.html",params=params)
                 else:
                     password = int(request.form["password"])
+                    id = int(request.form["ID"])
             except:
-                    params["msg"] = "パスワードは数字４桁にしてください"
+                    params["msg"] = "パスワードは数字４桁, 講師番号は数字6桁にしてください"
                     return render_template("register.html",params=params)
             values = [[request.form["ID"], request.form["password"], request.form["teacher_name"],request.form["name_sub"], int(request.form["age"]), request.form["gender"], 2 ,1]]
 
@@ -101,13 +102,13 @@ def register():
                     try:
                         cursor.executemany(sql, values)
                     except psycopg2.errors.UniqueViolation:
-                        params["msg"] = "このIDは既に存在しています。"
+                        params["msg"] = "この講師番号は既に存在しています。"
                         return render_template("register.html", params=params)
                     except psycopg2.errors.InvalidTextRepresentation:
-                        params["msg"] = "IDに数字以外の文字が含まれています"
+                        params["msg"] = "講師番号に数字以外の文字が含まれています"
                         return render_template("register.html", params=params)
                     except psycopg2.errors.NumericValueOutOfRange:
-                        params["msg"] = "IDが長すぎます,10文字以下にしてください"
+                        params["msg"] = "講師番号が長すぎます,6文字にしてください"
                         return render_template("register.html", params=params)
                 connection.commit()
             cursor.close()
@@ -803,6 +804,7 @@ def teacher_classes_setting():
                         subject_ids = cursor.fetchall()
                         print(subject_ids,"sv")
                         print(subjects)
+                        checked_subjects[f"{major}"] = []
                         for subject in subject_ids:
                             cursor.execute("select subject from subjects where id = %s", (subject[0],))
                             subjects_db = cursor.fetchall()
@@ -811,7 +813,6 @@ def teacher_classes_setting():
                                 #     if subject2[0] not in sub_list:
                                 #         for major_list in checked_subjects.keys():
                                 # if major not in major_list:
-                                checked_subjects[f"{major}"] = []
                                 if subject2[0] not in checked_subjects[f"{major}"]:
                                     checked_subjects[f"{major}"].append(subject2[0])
                         print(checked_subjects)
@@ -871,175 +872,92 @@ def form_check():
                 select_grade = grade
                 select_major = major 
                 select_teacher = teacher
-                # 専攻のIDを取得
-                cursor.execute("select id from majors where grade = %s and major = %s order by id asc",(grade[0],major,))
-                major_id = cursor.fetchall()
-                # 専攻のIDがある授業を取得
-                cursor.execute("select subject from subjects where major_id = %s order by id asc",(major_id[0],))
-                subjects_db = cursor.fetchall()
-                for subject in subjects_db:
-                    subjects.append(subject[0])
-                # 先生にすでに登録されている授業IDを取得
-                cursor.execute("select subject_id from teacher where name = %s and major_id = %s",(teacher, major_id[0],))
-                subject_ids = cursor.fetchall()
-                print(subject_ids)
-                for subject in subject_ids:
-                    cursor.execute("select subject from subjects where id = %s", (subject[0],))
-                    subjects_db = cursor.fetchall()
-                    for subject2 in subjects_db:
-                        print(subject2,"subject2")
-                        print(subject , "subject")
-                        # for sub_list in checked_subjects.values():
-                        #     print(sub_list,"sub_list")
-                        #     if subject2[0] not in sub_list:
-                        #         print(subject2[0],"subject2[0]")
-                        #         for major_list in checked_subjects.keys():
-                        #             print(major_list,"major_list")
-                        #             if major not in major_list:
-                        #                 print(major,"major")
-                        checked_subjects[f"{major}"] = []
-                        if subject2[0] not in checked_subjects[f"{major}"]:
-                            checked_subjects[f"{major}"].append(subject2[0])
-                        # else:
-                print(checked_subjects,"chekced")
 
                 # インサート文
                 for check in check_list:
-                    print(check,"check")
+                    
                     cursor.execute("select id from majors where major = %s and grade = %s", (major, grade[0],))
                     major_db = cursor.fetchall()  
-                    print(major_db[0][0])                      
+                   
                     cursor.execute("select id from subjects where major_id = %s and subject = %s",(major_db[0][0], check))
                     subject_ids = cursor.fetchall()
-                    print(subject_ids, "subject_idsss")
+
                     cursor.execute("select exists (select * from teacher where subject_id = %s and major_id = %s)",(subject_ids[0][0],major_db[0][0],))
                     result = cursor.fetchone()
-                    print(result)
+
                     if result[0] == False:
-                        #insert
                         cursor.execute("select teacher_id, name, name_sub, age, gender, password from teacher where name = %s", (teacher,))
                         teacher_info = cursor.fetchall()
                         cursor.execute("insert into teacher(teacher_id, name, name_sub, age, gender, password, subject_id, major_id) values(%s, %s, %s, %s, %s, %s, %s, %s)",(teacher_info[0][0], teacher_info[0][1],teacher_info[0][2],teacher_info[0][3],teacher_info[0][4],teacher_info[0][5], subject_ids[0][0], major_db[0][0]))
 
 
                 # delete 文
-                for check in check_list:
-                    # check sareta subject id 
-                    print(check,"check")
+                if check_list == []:
                     cursor.execute("select id from majors where major = %s and grade = %s", (major, grade[0],))
                     major_db = cursor.fetchall()  
-                    print(major_db[0][0])                      
-                    cursor.execute("select id from subjects where major_id = %s and subject = %s",(major_db[0][0], check))
-                    check_subject_ids = cursor.fetchall()
-                    print(check_subject_ids, "subject_idsss")
-##############################################################
-                    #teacher no subject_id ga check sareta subject ID にない時にDELETE
+                    cursor.execute("delete from teacher where major_id = %s",(major_db[0][0],))
 
-                    ####error
-                    cursor.execute("select subject_id from teacher where major_id = %s",(major_db[0][0]))
-                    teacher_subject_ids = cursor.fethcall()
-                    print(teacher_subject_ids,"teacher_sub id")
+                else:
+                    for check in check_list:
+                    # check sareta subject id 
 
-
-                # try:
-#                     for check in check_list:
-#                         for sub_list in checked_subjects.values():
-#                             if check not in sub_list:
-#                             #　もし新しく担当授業が追加されたらTeacherTABLEにINSERTする、(teacher_id, name, name_sub, age, gender, subject_id, major_id, password)
-#                                 cursor.execute("select id from majors where major = %s and grade = %s", (major, grade[0],))
-#                                 major_db = cursor.fetchall()
-
-#                                 cursor.execute("select subject from subjects where major_id = %s", (major_db[0][0],))
-#                                 sub_name = cursor.fetchall()
-#                                 print("AAAAAAAAAAAAA")
-#                                 for sub in sub_name:
-#                                     print(sub[0], "subb")
-# ########################    #############################################################################################
-#                                     print(list(checked_subjects.values())[0][0], "lsit")
-#                                     for sub_list in checked_subjects.values():
-
-#                                         if sub[0] not in sub_list:
-#                                             print(checked_subjects,"checked_subjects")
-#                                             print(sub[0])
-
-#                                             cursor.execute("select id from subjects where subject = %s", (sub[0],))
-#                                             subject_id = cursor.fetchall()
-
-#                                             cursor.execute("select teacher_id, name, name_sub, age, gender, password from teacher where name = %s", (teacher,))
-#                                             teacher_info = cursor.fetchall()
-
-#                                             cursor.execute("insert into teacher(teacher_id, name, name_sub, age, gender, password, subject_id, major_id) values(%s, %s, %s, %s, %s, %s, %s, %s)",(teacher_info[0][0], teacher_info[0][1],teacher_info[0][2],teacher_info[0][3],teacher_info[0][4],teacher_info[0][5], subject_id[0], major_db[0][0]))
-#                                             for sub_list in checked_subjects.values():
-#                                                 if sub[0] not in sub_list:
-#                                                     for major_list in checked_subjects.keys():
-#                                                         if major not in major_list:
-#                                                             checked_subjects[f"{major}"] = []
-#                                                             if sub[0] not in checked_subjects[f"{major}"]:
-#                                                                 checked_subjects[f"{major}"].append(sub[0])
-#                                                         else:
-#                                                             if sub[0] not in checked_subjects[f"{major}"]:
-# #                                                                 checked_subjects[f"{major}"].append(sub[0])
-#                             else:
-#                                 print("追加されない")
-#                 except:
-#                     pass
-                print(checked_subjects,"cgheecj")
-                try:
-                    print(grade[0])
-                    print(major)
-                    cursor.execute("select id from majors where major = %s and grade = %s", (major, grade[0],))
-                    major_db = cursor.fetchall()
-                    print(major_db,"major_db")
-                    cursor.execute("select subject_id from teacher where name = %s and major_id = %s",(teacher, major_db[0][0],))
-                    subject_ids = cursor.fetchall()
-                    print(subject_ids,"subject_od")
-                    for subject_id in subject_ids:
-                        print(subject_id)
-                        cursor.execute("select subject, major_id from subjects where major_id = %s", (major_db[0][0],))
-                        subjects = cursor.fetchall()
-                        print(subjects,"subjects")
+                        cursor.execute("select id from majors where major = %s and grade = %s", (major, grade[0],))
+                        major_db = cursor.fetchall()  
                     
-                    # for checked in checked_subjects:
-                    #     if checked not in check_list:
-                    #         cursor.execute("select id from majors where major = %s and grade = %s", (major, grade[0],))
-                    #         major_db = cursor.fetchall()
-                    #         print(major_db[0][0])
+                        cursor.execute("select subject_id from teacher where major_id = %s",(major_db[0][0],))
+                        teacher_subject_ids = cursor.fetchall()
 
-                    #         cursor.execute("select subject from subjects where major_id = %s", (major_db[0][0],))
-                    #         sub_name = cursor.fetchall()
-                    #         print(sub_name,"sub_name")
-                    #         for sub in sub_name:
-                    #             print(sub,"sub")
-                    #             if sub[0] not in check_list:
-                    #                 cursor.execute("select id from subjects where subject = %s and major_id = %s", (sub[0], major_db[0][0],))
-                    #                 subject_id = cursor.fetchall()
+                        for teacher_subid in teacher_subject_ids:
+                            cursor.execute("select subject from subjects where id = %s",(teacher_subid[0],))
+                            teacher_subject_name = cursor.fetchall()
 
-                    #                 print(subject_id,"subject_id")
-                    #                 cursor.execute("delete from teacher where subject_id = %s and major_id = %s",(subject_id[0][0], major_db[0][0],))
-                    #                 print("delete_success")
-                    #                 checked_subjects.remove(sub[0])
-                    print(checked_subjects)
-                    print(check_list)
-                    print(subjects)
-                except:
-                    pass
-                try:        
-                    # 講師を取得
-                    cursor.execute("select name from teacher order by id asc")
-                    teachers_db = cursor.fetchall()
-                    for teacher in teachers_db:
-                        if teacher[0] not in teachers:
-                            teachers.append(teacher[0])
+                            if teacher_subject_name[0][0] not in check_list:
+                                cursor.execute("select id from subjects where subject = %s and major_id = %s",(teacher_subject_name[0][0], major_db[0][0],))
+                                delete_sub_id = cursor.fetchall()
+                                cursor.execute("delete from teacher where subject_id = %s",(delete_sub_id[0][0],))
 
-                    # 選考の取得
-                    cursor.execute("select major from majors order by id asc")
-                    majors_db = cursor.fetchall()
-                    for major in majors_db:
-                        if major[0] not in majors:
-                            majors.append(major[0])
-                    #　パラメーターの取得
-                except:
-                    print("something went wrong in teacher_classes_setting POST")
+
+
+                #　選択された学年と専攻名でIDを取得    
+                cursor.execute("select id from majors where grade = %s and major = %s order by id asc",(grade[0],major,))
+                major_id = cursor.fetchall()
+
+                # 専攻のIDがある授業を取得
+                cursor.execute("select subject from subjects where major_id = %s order by id asc",(major_id[0],))
+                subjects_db = cursor.fetchall()
+                for subject in subjects_db:
+                    if subject[0] not in subjects:
+                        subjects.append(subject[0])
+
+                # 先生にすでに登録されている授業IDを取得
+                cursor.execute("select subject_id from teacher where name = %s and major_id = %s",(teacher, major_id[0],))
+                subject_ids = cursor.fetchall()
+                checked_subjects[f"{major}"] = []
+
+                for subject in subject_ids:
+                    cursor.execute("select subject from subjects where id = %s", (subject[0],))
+                    subjects_db = cursor.fetchall()
+    
+                    for subject2 in subjects_db:
+                        if subject2[0] not in checked_subjects[f"{major}"]:
+                            checked_subjects[f"{major}"].append(subject2[0])
+                    
+
+       
+                # 講師を取得
+                cursor.execute("select name from teacher order by id asc")
+                teachers_db = cursor.fetchall()
+                for teacher in teachers_db:
+                    if teacher[0] not in teachers:
+                        teachers.append(teacher[0])
+                # 選考の取得
+                cursor.execute("select major from majors order by id asc")
+                majors_db = cursor.fetchall()
+                for major in majors_db:
+                    if major[0] not in majors:
+                        majors.append(major[0])
+
+                #　パラメーターの設定
                 params={
                 "teachers": teachers,
                 "majors":majors,
@@ -1053,7 +971,93 @@ def form_check():
         return render_template("teacher_list.html", params=params)
 
 
+@app.route("/student_register", methods=["POST", "GET"])
+def student_register():
+    params = {
+        "msg":"",
+        "student_id":"",
+        "name":"",
+        "name_sub":"",
+        "age":"",
+        "department":"",
+        "major":"",
+        "departments_list": [],
+        "select_department":"学科選択",
+        "majors_list": [],
+        "select_major":"専攻選択"
+    }
+    if request.method == "GET":
+        departments_list = []
+        majors_list = []
+        with connection:
+            with connection.cursor() as cursor:
+                cursor.execute("select department from departments")
+                departments_db = cursor.fetchall()
+                for department_db in departments_db:
+                
+                    departments_list.append(department_db[0])
+                params["departments_list"] = departments_list
 
+                cursor.execute("select major from majors")
+                majors_db = cursor.fetchall()
+                for major_db in majors_db:
+                
+                    majors_list.append(major_db[0])
+                params["majors_list"] = majors_list
+
+            connection.commit()
+        cursor.close()
+        return render_template("student_register.html",params=params)
+    if request.method == "POST":
+        params["student_id"] = request.form["student_id"]
+        params["name"] = request.form["name"]
+        params["name_sub"] = request.form["name_sub"]
+        params["age"] = request.form["age"]
+        params["department"] = request.form["department"]
+        params["major"] = request.form["major"]
+
+        try:
+            if len(str(request.form["student_id"])) != 10:
+                params["msg"] = "学籍番号は数字10桁に設定してください"
+                return render_template("student_register.html",params=params)
+            elif re.compile('[0-9]+').fullmatch(request.form["name"]) == None and re.compile('[０-９]+').fullmatch(request.form["name"]) != None and re.compile('[ａ-ｚＡ-Ｚ]+').fullmatch(request.form["name"]) != None:
+                params["msg"] = "名前を正しく入力してください"
+                return render_template("student_register.html",params=params)
+            elif re.compile('[\u3041-\u309F]+').fullmatch(request.form["name_sub"]) == None:
+                params["msg"] = "ふりがなを入力してください"
+                return render_template("student_register.html",params=params)
+            elif re.compile('[0-9]+').fullmatch(request.form["age"]) == None:
+                params["msg"] = "年齢に文字が含まれています"
+                return render_template("student_register.html", params=params)
+            elif len(request.form["age"]) != 2:
+                params["msg"] = "年齢を正しく入力してください"
+                return render_template("student_register.html",params=params)
+            
+            
+            vali = int(request.form["student_id"])
+            
+        except:
+                params["msg"] = "except in student_register"
+                return render_template("register.html",params=params)
+        with connection:
+            with connection.cursor() as cursor:
+                # cursor.fetchall
+                values = [[request.form["student_id"], request.form["name"],request.form["name_sub"], int(request.form["age"]), request.form["gender"],department_id,major_id]]
+                sql = f'insert into student(student_id, name ,name_sub ,age, gender, department_id, major_id ) values (%s, %s, %s, %s, %s, %s, %s)'
+                try:
+                    cursor.executemany(sql, values)
+                except psycopg2.errors.UniqueViolation:
+                    params["msg"] = "この学籍番号は既に存在しています。"
+                    return render_template("student_register.html", params=params)
+                except psycopg2.errors.InvalidTextRepresentation:
+                    params["msg"] = "学籍番号に数字以外の文字が含まれています"
+                    return render_template("student_register.html", params=params)
+                except psycopg2.errors.NumericValueOutOfRange:
+                    params["msg"] = "学籍番号が長すぎます,10文字にしてください"
+                    return render_template("student_register.html", params=params)
+            connection.commit()
+        cursor.close()
+        return render_template("student_register.html",params=params)
 
 
 @app.route("/attendance_check", methods=["POST", "GET"])       
