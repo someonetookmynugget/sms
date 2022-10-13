@@ -10,7 +10,7 @@ insert into student (
     subject_id
     )
 values(
-    2004230006,
+    "2004230006",
     '古賀慶次郎',
     'コガケイジロウ',
     '男性',
@@ -33,7 +33,7 @@ insert into student (
     subject_id
     )
 values(
-    2004230011,
+    "2004230011",
     '西結都',
     'ニシユイト',
     '男性',
@@ -55,7 +55,7 @@ insert into student (
     subject_id
     )
 values(
-    2004240012,
+    "2004240012",
     '中村太一',
     'ナカムラタイチ',
     '男性',
