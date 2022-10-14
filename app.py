@@ -787,26 +787,26 @@ def histogram(student_id, subject):
         score = []
         with connection:
             with connection.cursor() as cursor:
-                cursor.execute("select subject_id from student where student_id = %s",(student_id,))
-                subject_ids = cursor.fetchall()
-                for subject_id in subject_ids:
-                    cursor.execute("select subject from subjects where id = %s",(subject_id[0],))
-                    subject_name = cursor.fetchall()
-                    subject_name = subject_name[0]
-                    cursor.execute("select test_name, test_score from test where test_name = %s",(subject_name,))
+                
+                    cursor.execute("select test_name, test_score from test where subject = %s and student_id = %s",(subject,student_id,))
                     tests = cursor.fetchall()
                     for test in tests:
                         test_name = test[0]
                         test_score = test[1]
                         name.append(test_name)
                         name_label.append(test_name)
-                        score.append(test_score)
+                        score.append(int(test_score))
                     
-                plt.bar(name, score, tick_label = name_label, align="center")
-                plt.title(f"{subject_name}")
-                plt.xlabel("テスト名")
-                plt.ylabel("点数")
-
+                    print(name_label)
+                    print(score)
+                    height = list(range(0,101,10))
+                    height = ["50"]
+                    y = range(1, len(score)+1)
+                    plt.bar(height ,y, tick_label=name_label, align="center")
+                    plt.title(f"{subject}")
+                    plt.xlabel("テスト名")
+                    plt.ylabel("点数")
+                    plt.show()
 
         # x = []  
         # for student in students:
@@ -830,29 +830,29 @@ def histogram(student_id, subject):
         # plt.tick_params(labelsize = 10)
 
 
-                path = f"static/graph_images/{student_id}_{test_key}.png"
-                plt.savefig(path)
-                # for student in students:
-                #     if student["id"] == student_id:
-                cursor.execute("select student_id, name, department_id, major_id, age, class_id, gender from student where student_id = %s",(student_id,))
-                student_details = cursor.fetchall()
-                for detail in student_details:
-                    student_id = detail[0]
-                    student_name = detail[1]
-                    department_id = detail[2]
-                    major_id = detail[3]
-                    age = detail[4]
-                    class_id = detail[5]
-                    gender = detail[6]
-                    cursor.execute("select department from departments where id = %s",(department_id,))
-                    department_name = cursor.fetchall()
-                    department_name = department_name[0][0]
-                    cursor.execute("select major from majors where id = %s",(major_id,))
-                    major_name = cursor.fetchall()
-                    major_name = major_name[0][0]
-                    cursor.execute("select class from classes where id = %s",(class_id,))
-                    class_name = cursor.fetchall()
-                    class_name = class_name[0][0]
+                    path = f"static/graph_images/{student_id}_{subject}.png"
+                    plt.savefig(path)
+                    # for student in students:
+                    #     if student["id"] == student_id:
+                    cursor.execute("select student_id, name, department_id, major_id, age, class_id, gender from student where student_id = %s",(student_id,))
+                    student_details = cursor.fetchall()
+                    for detail in student_details:
+                        student_id = detail[0]
+                        student_name = detail[1]
+                        department_id = detail[2]
+                        major_id = detail[3]
+                        age = detail[4]
+                        class_id = detail[5]
+                        gender = detail[6]
+                        cursor.execute("select department from departments where id = %s",(department_id,))
+                        department_name = cursor.fetchall()
+                        department_name = department_name[0][0]
+                        cursor.execute("select major from majors where id = %s",(major_id,))
+                        major_name = cursor.fetchall()
+                        major_name = major_name[0][0]
+                        cursor.execute("select class from classes where id = %s",(class_id,))
+                        class_name = cursor.fetchall()
+                        class_name = class_name[0][0]
         # パラメータの  
         params = {
             "student_id": student_id,
@@ -862,18 +862,13 @@ def histogram(student_id, subject):
             "age":age,
             "class_name":class_name,
             "gender":gender,
+            "subject":subject
             #  "student": student,
             #  "image": path,
             #  "test_names": test_names
         }         
         params["image"] = path
-        print(name_label,"name_label")
         params["test_names"] = name_label
-        # params = {
-        #     "image": path,
-        #     # "test_names": test_name,
-        #     # "test_name_value": test_names[test_key] 
-        #             }
         return render_template("student_detail.html", params=params)
         # return redirect(url_for("login"))
 
