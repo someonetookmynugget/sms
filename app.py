@@ -695,6 +695,7 @@ def view_profile(student_id):
         if request.method=="GET":
             print("AAAAAAAAAAAAAAAAAA")###### 消す
             test_names = []
+            subject_list = []
             with connection:
                 with connection.cursor() as cursor:
                     cursor.execute("select student_id, name, department_id, major_id, age, class_id, gender from student where student_id = %s",(student_id,))
@@ -732,8 +733,8 @@ def view_profile(student_id):
                         print("b")
                         subject_name = cursor.fetchall()
                         subject_name = subject_name[0]
-                        print(subject_name[0])
-                        cursor.execute("select test_name from test where subject = %s",(subject_name[0],))
+                        subject_list.append(subject_name[0])
+                        cursor.execute("select test_name, test_score from test where subject = %s",(subject_name[0],))
                         tests = cursor.fetchall()
                         print(tests)
                         for test in tests:
@@ -741,7 +742,8 @@ def view_profile(student_id):
                             print("a")
                             if test_name not in test_names:
                                 test_names.append(test_name)
-
+                    
+                    print(subject_list,"subject_list")
                     # 日付
                     # x = list(student["rate_history"].keys())
                     # # 出席率
@@ -771,13 +773,13 @@ def view_profile(student_id):
                         "class_name":class_name,
                         "gender":gender,
                         #  "student": student,
-                        #  "image": path,
+                        "subject_list":subject_list,
                          "test_names": test_names
                     }
                     return render_template("student_detail.html", params=params)
         return redirect(url_for("login"))   
-@app.route("/view_profile/<student_id>/score_graph_<test_key>",methods=["GET","POST"])                      
-def histogram(student_id, test_key):
+@app.route("/view_profile/<student_id>/score_graph_<subject>",methods=["GET","POST"])                      
+def histogram(student_id, subject):
 
     if request.method=="GET":
         name = []  
@@ -828,30 +830,30 @@ def histogram(student_id, test_key):
         # plt.tick_params(labelsize = 10)
 
 
-        path = f"static/graph_images/{student_id}_{test_key}.png"
-        plt.savefig(path)
-        # for student in students:
-        #     if student["id"] == student_id:
-        cursor.execute("select student_id, name, department_id, major_id, age, class_id, gender from student where student_id = %s",(student_id,))
-        student_details = cursor.fetchall()
-        for detail in student_details:
-            student_id = detail[0]
-            student_name = detail[1]
-            department_id = detail[2]
-            major_id = detail[3]
-            age = detail[4]
-            class_id = detail[5]
-            gender = detail[6]
-            cursor.execute("select department from departments where id = %s",(department_id,))
-            department_name = cursor.fetchall()
-            department_name = department_name[0][0]
-            cursor.execute("select major from majors where id = %s",(major_id,))
-            major_name = cursor.fetchall()
-            major_name = major_name[0][0]
-            cursor.execute("select class from classes where id = %s",(class_id,))
-            class_name = cursor.fetchall()
-            class_name = class_name[0][0]
-        # パラメータの
+                path = f"static/graph_images/{student_id}_{test_key}.png"
+                plt.savefig(path)
+                # for student in students:
+                #     if student["id"] == student_id:
+                cursor.execute("select student_id, name, department_id, major_id, age, class_id, gender from student where student_id = %s",(student_id,))
+                student_details = cursor.fetchall()
+                for detail in student_details:
+                    student_id = detail[0]
+                    student_name = detail[1]
+                    department_id = detail[2]
+                    major_id = detail[3]
+                    age = detail[4]
+                    class_id = detail[5]
+                    gender = detail[6]
+                    cursor.execute("select department from departments where id = %s",(department_id,))
+                    department_name = cursor.fetchall()
+                    department_name = department_name[0][0]
+                    cursor.execute("select major from majors where id = %s",(major_id,))
+                    major_name = cursor.fetchall()
+                    major_name = major_name[0][0]
+                    cursor.execute("select class from classes where id = %s",(class_id,))
+                    class_name = cursor.fetchall()
+                    class_name = class_name[0][0]
+        # パラメータの  
         params = {
             "student_id": student_id,
             "student_name":student_name,

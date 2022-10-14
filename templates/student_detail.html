@@ -37,13 +37,13 @@
       {% if params.test_name_value%}
       {{params.test_name_value}}を表示中
       {% else %}
-      テストのグラフを選択
+      授業を選択
       {% endif %}
     </button>
     <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
-      {% if params.test_names %}
-      {% for i in params.test_names %}
-      <li><a class="dropdown-item" href="/view_profile/{{ params.student_id }}/score_graph_{{i}}">{{ i }}</a></li>
+      {% if params.subject_list %}
+      {% for subject in params.subject_list %}
+      <li><a class="dropdown-item" href="/view_profile/{{ params.student_id }}/score_graph_{{subject}}">{{ subject }}</a></li>
       {% endfor %}
       {% else %}
       <li><a class="dropdown-item" href="">採点したテストがありません</a></li>
