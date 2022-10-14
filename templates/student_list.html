@@ -115,7 +115,32 @@
                         {% endfor %}
                 </div>
                 <button type="submit" class="btn btn-primary">保存</button>
-              </form>   
+              </form>
+              <div class="edit">
+                <!-- Modal -->
+                <div class="modal fade" id="edit_test_names" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+                  <div class="modal-dialog">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h5 class="modal-title" id="staticBackdropLabel">テスト名の編集</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                      </div>
+                      <div class="modal-body">
+                                <h2>テスト名の編集</h2>
+                                {% for key, value in params.test_names.items() %}
+                                <form action="/edit_test_name" method="POST">
+                                <label> {{ value }} </label>
+                                <input type="hidden" name="current_test_name" value="{{value}}">
+                                <input type="hidden" name="subject" value="{{ params.subject_name }}">
+                                <input type="text" name="new_test_name" value="{{value}}" placeholder="名前を入力">
+                                <input type="submit" class="btn btn-primary" value="保存">
+                              </form>
+                                {% endfor %}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+</div>       
                 </table>
         </div>
 

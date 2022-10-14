@@ -1,0 +1,131 @@
+insert into student (
+    student_id,
+    name,
+    name_sub,
+    gender,
+    age,
+    department_id,
+    major_id,
+    class_id,
+    subject_id,
+    rate,
+    note
+    )
+values(
+    '2004230006',
+    '古賀慶次郎',
+    'コガケイジロウ',
+    '男性',
+    21,
+    1,
+    2,
+    6,
+    2,
+    '',
+    ''
+);
+
+insert into student (
+    student_id,
+    name,
+    name_sub,
+    gender,
+    age,
+    department_id,
+    major_id,
+    class_id,
+    subject_id,
+    rate,
+    note
+    )
+values(
+    '2004230011',
+    '西結都',
+    'ニシユイト',
+    '男性',
+    21,
+    1,
+    2,
+    6,
+    2,
+    '',
+    ''
+);
+insert into student (
+    student_id,
+    name,
+    name_sub,
+    gender,
+    age,
+    department_id,
+    major_id,
+    class_id,
+    subject_id,
+    rate,
+    note
+    )
+values(
+    '2004240012',
+    '中村太一',
+    'ナカムラタイチ',
+    '男性',
+    20,
+    1,
+    1,
+    4,
+    1,
+    '',
+    ''
+);
+insert into student (
+    student_id,
+    name,
+    name_sub,
+    gender,
+    age,
+    department_id,
+    major_id,
+    class_id,
+    subject_id,
+    rate,
+    note
+    )
+values(
+    '2004230006',
+    '古賀慶次郎',
+    'コガケイジロウ',
+    '男性',
+    21,
+    1,
+    2,
+    6,
+    3,
+    '',
+    ''
+);
+insert into student (
+    student_id,
+    name,
+    name_sub,
+    gender,
+    age,
+    department_id,
+    major_id,
+    class_id,
+    subject_id,
+    rate,
+    note
+    )
+values(
+    '2004230011',
+    '西結都',
+    'ニシユイト',
+    '男性',
+    21,
+    1,
+    2,
+    6,
+    3,
+    '',
+    ''
+);
