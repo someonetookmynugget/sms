@@ -12,7 +12,6 @@
 
 # print(students[0]["test"].keys())
 
-a = ["test1", "test2", "test2","test4"]
-b = ["", "", "","100"]
-c = dict(zip(a,b))
+a = ["1点", "10点", "100点"]
+c = a[2][:-1]
 print(c)

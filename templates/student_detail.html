@@ -11,11 +11,16 @@
 </head>
 <body>
 
-    <h2><br>　　　　生徒詳細</h2>
+    <h2><br>学生詳細</h2>
     <img src="/static/student_images/user.png" alt="" title="">
-    {{ params.student.id }}
-    {{ params.student.name }}
-    <img src="/{{ params.image }}" />
+    {{ params.student_id }}
+    {{ params.student_name }}
+    {{ params.department_name}}
+    {{ params.major_name}}専攻
+    {{ params.class_name}}
+    {{ params.age }}歳
+    性別:{{ params.gender }}
+      <!-- <img src="/{{ params.image }}" /> -->
 
     <div class="dropdown">
       <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
@@ -23,7 +28,7 @@
       </button>
       <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
 
-        <li><a class="dropdown-item" href="/view_profile/{{ params.student.id }}">出席率</a></li>
+        <li><a class="dropdown-item" href="/view_profile/{{ params.student_id }}">出席率</a></li>
       </ul>
     </div>
 
@@ -37,8 +42,8 @@
     </button>
     <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
       {% if params.test_names %}
-      {% for testkey, testname in params.test_names.items() %}
-      <li><a class="dropdown-item" href="/view_profile/{{ params.student.id }}/score_graph_{{testkey}}">{{ testname }}</a></li>
+      {% for i in params.test_names %}
+      <li><a class="dropdown-item" href="/view_profile/{{ params.student_id }}/score_graph_{{i}}">{{ i }}</a></li>
       {% endfor %}
       {% else %}
       <li><a class="dropdown-item" href="">採点したテストがありません</a></li>

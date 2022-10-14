@@ -33,9 +33,6 @@
       <input type="text" class="form-control" name="age" id ="exampleInputAge1" value="{{ params.age }}" required>
     </div>
     <div class="mb-3">
-      <label for="department" class="form-label">学科</label>
-      <input type="department" class="form-control" name="department" id ="exampleInputdepartment1" value="{{ params.department }}" required>
-    </div>
     <select class="form-select" aria-label="Default select example" name="department">
 
         {% if params.select_department == "学科選択" %}
@@ -47,10 +44,21 @@
         <option value="{{ department }}">{{department}}</option>
         {% endfor %}
       </select>
-    <div class="mb-3">
-      <label for="major" class="form-label">専攻</label>
-      <input type="major" class="form-control" name="major2" id ="exampleInputmajor2" value="{{ params.major }}" required>
     </div>
+    <div class="mb-3">
+      <select class="form-select" aria-label="Default select example" name="department">
+
+        {% if params.select_major == "専攻選択" %}
+        <option value="0" selected>{{params.select_major}}</option>
+        {% else %}
+        <option value="{{params.major}}" selected>{{params.major}}  を選択中</option>
+        {% endif %}
+        {% for major in params.majors_list %}
+        <option value="{{ major }}">{{major}}</option>
+        {% endfor %}
+      </select>
+    </div>
+
     <button type="submit" class="btn btn-primary">Submit</button>
   </form>
 </div>

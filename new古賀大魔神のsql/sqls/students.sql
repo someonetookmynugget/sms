@@ -9,6 +9,8 @@ create table student (
     major_id int NOT NULL,
     class_id int,
     subject_id int,
+    rate varchar(2),
+    note varchar (255),
     
     FOREIGN KEY(department_id) 
     REFERENCES departments(id),
