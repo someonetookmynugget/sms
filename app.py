@@ -1341,8 +1341,17 @@ def subject_select():
         }
         connection.commit()
         cursor.close()
-        print(subject_list)
+        # print(subject_list)
         return render_template("subject_select.html", params=params)
 
+@app.route("/display_select", methods=["POST","GET"])
+def display_select():
+    if request.method=="POST":
+        subject = request.form["subject"]
+        print("POST_display_Select")
+        params = {
+            "subject":subject,
+        }
+        return render_template("display_select.html",params=params)
 if __name__ == "__main__":
     app.run(port=12345, debug=True) # 12345でerrorがでたら8000にする
