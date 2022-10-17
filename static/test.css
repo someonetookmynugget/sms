@@ -157,10 +157,22 @@ table td {
     text-align: center;
 }
 }
-dialog {
-    display: block; 
+
+/* .radio{
+     display:none;
 }
 
-dialog:not(:target):not([opens]) { 
-   display: none; 
+.label{
+    padding:5px 10px;
+    background-color:rgb(113, 113, 113);
+    color: #fff;
+    cursor:pointer;
 }
+
+#attend:checked ~ .label-1,
+#absence:checked ~ .label-2,
+#official_absence:checked ~ .label-3,
+#tardy:checked ~ .label-4,
+#left_early:checked ~ .label-5{
+    background-color: #5b5b5b;
+} */

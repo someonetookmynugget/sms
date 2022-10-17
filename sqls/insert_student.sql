@@ -9,7 +9,13 @@ insert into student (
     class_id,
     subject_id,
     rate,
-    note
+    note,
+    total_unit,
+    total_attend,
+    total_absence,
+    tardy,
+    leave_early,
+    official_absence
     )
 values(
     '2004230006',
@@ -22,7 +28,13 @@ values(
     6,
     2,
     '',
-    ''
+    '',
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
 );
 
 insert into student (
@@ -36,7 +48,13 @@ insert into student (
     class_id,
     subject_id,
     rate,
-    note
+    note,
+    total_unit,
+    total_attend,
+    total_absence,
+    tardy,
+    leave_early,
+    official_absence
     )
 values(
     '2004230011',
@@ -49,7 +67,13 @@ values(
     6,
     2,
     '',
-    ''
+    '',
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
 );
 insert into student (
     student_id,
@@ -62,7 +86,13 @@ insert into student (
     class_id,
     subject_id,
     rate,
-    note
+    note,
+    total_unit,
+    total_attend,
+    total_absence,
+    tardy,
+    leave_early,
+    official_absence
     )
 values(
     '2004240012',
@@ -75,7 +105,13 @@ values(
     4,
     1,
     '',
-    ''
+    '',
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
 );
 insert into student (
     student_id,
@@ -88,7 +124,13 @@ insert into student (
     class_id,
     subject_id,
     rate,
-    note
+    note,
+    total_unit,
+    total_attend,
+    total_absence,
+    tardy,
+    leave_early,
+    official_absence
     )
 values(
     '2004230006',
@@ -101,7 +143,13 @@ values(
     6,
     3,
     '',
-    ''
+    '',
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
 );
 insert into student (
     student_id,
@@ -114,7 +162,13 @@ insert into student (
     class_id,
     subject_id,
     rate,
-    note
+    note,
+    total_unit,
+    total_attend,
+    total_absence,
+    tardy,
+    leave_early,
+    official_absence
     )
 values(
     '2004230011',
@@ -127,5 +181,11 @@ values(
     6,
     3,
     '',
-    ''
+    '',
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
 );

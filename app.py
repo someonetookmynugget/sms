@@ -217,8 +217,8 @@ def logout():
 @app.route("/student_list", methods=["GET", "POST"])
 def student_list():
     # if session["loggedin"] == True:
-        # if request.method=="GET":
-        #     print("stundet?list GET") 
+        if request.method=="GET":
+            print("stundet_list GET") 
         if request.method=="POST":
             print("POST stundet_list")
             test_names = {}
@@ -1091,7 +1091,6 @@ def form_check():
         grade = request.form["grade"]
         teacher = request.form["teacher"]
         check_list = request.form.getlist("check")
-        print(check_list)
         checked_subjects = {}
         subjects = [] 
         teachers = []
@@ -1297,7 +1296,33 @@ def attendance_check():
     if request.method=="GET":
         return render_template("attendance_check.html")
     if request.method=="POST":
-        return render_template("attendance_check.html")
+        student_list = []
+        radio_list = request.form.args
+        print(radio_list)
+        subject = request.form["subject"]
+        params = {
+            "subject":subject
+        }
+        with connection:
+            with connection.cursor() as cursor:
+                cursor.execute("select id from subjects where subject = %s",(subject,))
+                subject_ids = cursor.fetchall()
+                for subject_id in subject_ids:
+                    cursor.execute("select student_id, name, name_sub from student where subject_id = %s", (subject_id[0],))
+                    student_details = cursor.fetchall()
+                    for student_detail in student_details:
+                        student_list.append({})
+                        student_list[len(student_list)-1]["student_id"] = student_detail[0]
+                        student_list[len(student_list)-1]["name"] = student_detail[1]
+                        student_list[len(student_list)-1]["name_sub"] = student_detail[2]
+
+                
+            connection.commit()
+        cursor.close()
+
+
+        params["student_list"] = student_list
+        return render_template("attendance_check.html",params=params)
                 
 @app.route("/subject_select", methods=["POST", "GET"])
 def subject_select():

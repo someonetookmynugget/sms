@@ -9,7 +9,15 @@
     <button onclick="history.back()" class="">戻る</button>
     <button class="" type="button">ログアウト</button>
     <h1>授業：{{params.subject}}</h1>
-    <a href=""><div class="">出欠</div></a>
-    <a href="/student_list"><div class="">成績一覧</div></a>
+    <form action="/attendance_check" method="POST">
+      <input type="hidden" name="subject" value="{{ params.subject }}">
+      <input type="submit" value="出欠確認">
+    </form> 
+
+
+    <form action="/student_list" method="POST">
+    <input type="hidden" name="subject" value="{{ params.subject }}">
+    <input type="submit" value="成績一覧">
+    </form> 
 </body>
 </html>

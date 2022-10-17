@@ -3,6 +3,7 @@ create table subjects (
     subject varchar(20) NOT NULL,
     department_id int NOT NULL,
     major_id int NOT NULL,
+    unit int not null,
     FOREIGN KEY(department_id) 
     REFERENCES departments(id),
 

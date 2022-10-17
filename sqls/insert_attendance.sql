@@ -2,13 +2,13 @@ insert into attendance(
     student_id,
     attendance,
     attendance_day,
-    subject_id
+    subject
     )
 values(
     2004230006,
     '出席',
     '2022-9-19',
-    1
+    'システム開発(木 ２・３限)-3'
 );
 insert into attendance(
     student_id,
@@ -20,7 +20,7 @@ values(
     2004230011,
     '出席',
     '2022-9-19',
-    1
+    'システム開発(木 ２・３限)-3'
 );
 insert into attendance(
     student_id,
@@ -32,7 +32,7 @@ values(
     2004240012,
     '出席',
     '2022-9-19',
-    1
+    'システム開発(木 ２・３限)-3'
 );
 insert into attendance(
     student_id,
@@ -44,7 +44,7 @@ values(
     2004230006,
     '出席',
     '2022-9-20',
-    1
+    'システム開発(木 ２・３限)-3'
 );
 insert into attendance(
     student_id,
@@ -56,7 +56,7 @@ values(
     2004230011,
     '出席',
     '2022-9-20',
-    1
+    'システム開発(木 ２・３限)-3'
 );
 insert into attendance(
     student_id,
@@ -68,7 +68,7 @@ values(
     2004240012,
     '出席',
     '2022-9-20',
-    1
+    'システム開発(木 ２・３限)-3'
 );
 insert into attendance(
     student_id,
@@ -80,7 +80,7 @@ values(
     2004230006,
     '出席',
     '2022-9-21',
-    1
+    'システム開発(木 ２・３限)-3'
 );
 insert into attendance(
     student_id,
@@ -92,7 +92,7 @@ values(
     2004230011,
     '出席',
     '2022-9-21',
-    1
+    'システム開発(木 ２・３限)-3'
 );
 insert into attendance(
     student_id,
@@ -104,5 +104,5 @@ values(
     2004240012,
     '出席',
     '2022-9-21',
-    1
+    'システム開発(木 ２・３限)-3'
 );
