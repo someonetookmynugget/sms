@@ -10,7 +10,7 @@
   <h1>新規ユーザー登録画面</h1>
   <p>{{ params.msg }}</p>
   <div class="container">
-  <form action="/register" method="POST">
+  <form action="/register" method="POST" name="register">
     <div class="mb-3">
       <label for="name" class="form-label">講師名</label>
       <input type="text" class="form-control" name="teacher_name" id="exampleInputName1" value="{{ params.name }}" required>
@@ -40,7 +40,8 @@
       <label for="password" class="form-label">再パスワード</label>
       <input type="password" class="form-control" name="password2" id ="exampleInputPassword2" value="{{ params.password }}" required>
     </div>
-    <button type="submit" class="btn btn-primary">Submit</button>
+    <!-- <button type="submit" class="btn btn-primary">Submit</button> -->
+    <a href="javascript:register.submit()">登録</a>
   </form>
 </div>
 </body>

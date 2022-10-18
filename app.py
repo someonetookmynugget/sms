@@ -655,24 +655,26 @@ def edit_test_name():
             test_names = {}
             msg = ""
             subject = request.form["subject"]
-            current_test_name = request.form["current_test_name"]
-            new_test_name = request.form["new_test_name"]
+            current_test_name_list = request.form.getlist("current_test_name")
+            new_test_name_list = request.form.getlist("new_test_name")
+            print(current_test_name_list)
             print(subject)
-            print(current_test_name)
-            print(new_test_name)
+            print(new_test_name_list)
+            # print(new_test_name)
             with connection:            
                 with connection.cursor() as cursor:
-                    if current_test_name != new_test_name:
-                        try:
-                            cursor.execute(f"select test_name from test where test_name = %s order by id asc",(new_test_name,))
-                            test = cursor.fetchall()
-                            print(test,"test")
-                            if test == []:
-                                cursor.execute(f"update test set test_name = %s where test_name = %s and subject = %s",(new_test_name, current_test_name,subject,))
-                            else:
-                                raise
-                        except:
-                            msg="既に存在している名前です"
+                    for i, current_test_name in enumerate(current_test_name_list):
+                        if current_test_name != new_test_name_list[i]:
+                            try:
+                                cursor.execute(f"select test_name from test where test_name = %s order by id asc",(new_test_name_list[i],))
+                                test = cursor.fetchall()
+                                print(test,"test")
+                                if test == []:
+                                    cursor.execute(f"update test set test_name = %s where test_name = %s and subject = %s",(new_test_name_list[i], current_test_name,subject,))
+                                else:
+                                    raise
+                            except:
+                                msg="既に存在している名前です"
                 connection.commit()
             cursor.close()
             with connection:

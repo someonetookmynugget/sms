@@ -10,7 +10,7 @@
   <h1>学生登録</h1>
   <p>{{ params.msg }}</p>
   <div class="container">
-  <form action="/register" method="POST">
+  <form action="/student_register" method="POST" name="register">
     <div class="mb-3">
       <label for="student_id" class="form-label">学籍番号</label>
       <input type="text" class="form-control" name="student_id" id="exampleInputstudent_id1" value="{{ params.student_id }}" required>
@@ -59,7 +59,7 @@
       </select>
     </div>
 
-    <button type="submit" class="btn btn-primary">Submit</button>
+    <a href="javascript:register.submit()">登録</a>
   </form>
 </div>
 </body>

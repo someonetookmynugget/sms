@@ -16,7 +16,7 @@
   {% endfor %} 
   {% endfor %}  
   {{params.msg}}
-  <form action="/teacher_classes_setting" method="POST">
+  <form action="/teacher_classes_setting" method="POST" name="tcs">
       <select class="form-select" aria-label="Default select example" name="teacher">
 
         {% if params.select_teacher == "講師選択" %}
@@ -51,11 +51,12 @@
         <option value="{{ major }}">{{major}}</option>
         {% endfor %}
       </select>
-      <button type="submit" class="btn btn-primary">適用</button>
+      <a href="javascript:tcs.submit()">適用</a>
+      <!-- <button type="submit" class="btn btn-primary">適用</button> -->
     </form>
 <!-- もしすでに設定されている授業だったらデフォルトでチェックを入れておく -->
     <h4>授業</h4>
-    <form action="/form_check" method="POST">
+    <form action="/form_check" method="POST" name="form_check">
     {% for subject in params.subjects %}
     {% for sub_list in params.checked_subjects.values() %}
       {% if subject in sub_list %}
@@ -82,8 +83,8 @@
     {% endfor %} 
     {% endfor %}
 
-
-    <button type="submit" class="btn btn-primary">設定完了</button>
+    <a href="javascript:form_check.submit()">設定完了</a>
+    <!-- <button type="submit" class="btn btn-primary">設定完了</button> -->
     </form>
 </body>
 </html>
