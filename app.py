@@ -1226,10 +1226,9 @@ def student_register():
         "majors_list": [],
         "select_major":"専攻選択"
     }
-    if request.method == "GET":
-        departments_list = []
-        majors_list = []
-        with connection:
+    departments_list = []
+    majors_list = []
+    with connection:
             with connection.cursor() as cursor:
                 cursor.execute("select department from departments")
                 departments_db = cursor.fetchall()
@@ -1246,30 +1245,12 @@ def student_register():
                 params["majors_list"] = majors_list
 
             connection.commit()
-        cursor.close()
+    cursor.close()
+
+    if request.method == "GET":
         return render_template("student_register.html",params=params)
 
     if request.method == "POST":
-        departments_list = []
-        majors_list = []
-        with connection:
-            with connection.cursor() as cursor:
-                cursor.execute("select department from departments")
-                departments_db = cursor.fetchall()
-                for department_db in departments_db:
-                
-                    departments_list.append(department_db[0])
-                params["departments_list"] = departments_list
-
-                cursor.execute("select major from majors")
-                majors_db = cursor.fetchall()
-                for major_db in majors_db:
-                    if major_db[0] not in majors_list:
-                        majors_list.append(major_db[0])
-                params["majors_list"] = majors_list
-
-            connection.commit()
-        cursor.close()
         params["student_id"] = request.form["student_id"]
         params["name"] = request.form["name"]
         params["name_sub"] = request.form["name_sub"]
@@ -1428,7 +1409,75 @@ def display_select():
 
 @app.route("/subject_register",methods=["POST","GET"])
 def subject_register():
+    params = {
+        "department":"",
+        "major":"",
+        "departments_list": [],
+        "select_department":"学科選択",
+        "majors_list": [],
+        "select_major":"専攻選択"
+    }
+    departments_list = []
+    majors_list = []
+    with connection:
+            with connection.cursor() as cursor:
+                cursor.execute("select department from departments")
+                departments_db = cursor.fetchall()
+                for department_db in departments_db:
+                
+                    departments_list.append(department_db[0])
+                params["departments_list"] = departments_list
+
+                cursor.execute("select major from majors")
+                majors_db = cursor.fetchall()
+                for major_db in majors_db:
+                    if major_db[0] not in majors_list:
+                        majors_list.append(major_db[0])
+                params["majors_list"] = majors_list
+
+            connection.commit()
+    cursor.close()
+
     if request.method == "GET":
-        
+        return render_template("subject_register.html",params=params)
+
+
+    if request.method == "POST":
+        subject = request.form["subject"]
+        unit = request.form["unit"]
+        major = request.form["major"]
+        department = request.form["department"]
+        timetables = request.form.getlist("timetable")
+        grade = request.form["grade"]
+        dow = request.form["dow"]
+
+        subject = subject + "(" + dow + "・"
+        for i, timetable in enumerate(timetables):
+            if i != len(timetables)-1:
+                subject = subject + str(timetable) + ","
+            else:
+                subject = subject + str(timetable)
+
+        subject = subject + "限)-" + str(grade) + "年"
+        print(subject)
+        print(unit)
+        print(major)
+        print(department)
+        print(timetables)
+        with connection:
+            with connection.cursor() as cursor:
+                for timetable in timetables:
+                    cursor.execute("select id from departments where department = %s",(department,))
+                    department_id = cursor.fetchone()
+                    department_id = department_id[0]
+                    
+                    cursor.execute("select id from majors where major = %s", (major,))
+                    major_id = cursor.fetchone()
+                    major_id = major_id[0]
+
+                    cursor.execute(f'insert into subject(subject, department_id, major_id, unit, timetable, grade, dow) values (%s,%s,%s,%s,%s,%s,%s);',(name, "",student, request.form["subject"]))
+            connection.commit()
+        cursor.close()
+        return render_template("subject_register.html",params=params)
 if __name__ == "__main__":
     app.run(port=12345, debug=True) # 12345でerrorがでたら8000にする

@@ -4,7 +4,9 @@ create table subjects (
     department_id int NOT NULL,
     major_id int NOT NULL,
     unit int not null,
-    #何限かを入れる
+    timetable int not null,
+    grade int not null,
+    dow varchar(1),
     FOREIGN KEY(department_id) 
     REFERENCES departments(id),
 
