@@ -1344,8 +1344,8 @@ def subject_select():
                         subjects = cursor.fetchall()
 
                         for subject in subjects:
-                            subject_list.append(subject[0])
-                        subject_list = list(set(subject_list))
+                            if subject[0] not in subject_list:
+                                subject_list.append(subject[0])
 
                     else:
                         cursor.execute("SELECT SUBJECT_ID FROM teacher where teacher_id = %s",(session["user_id"],))
