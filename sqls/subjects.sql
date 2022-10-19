@@ -4,6 +4,7 @@ create table subjects (
     department_id int NOT NULL,
     major_id int NOT NULL,
     unit int not null,
+    #何限かを入れる
     FOREIGN KEY(department_id) 
     REFERENCES departments(id),
 

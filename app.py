@@ -1,9 +1,9 @@
 
-from asyncio.windows_events import NULL
+
 from datetime import datetime
 import datetime
 from tabnanny import check
-from unittest.mock import patch#DBあったらいらないかも？
+import regex
 import psycopg2.extras
 from matplotlib.figure import Figure
 import matplotlib.pyplot as plt
@@ -89,8 +89,11 @@ def register():
                     params["msg"] = "年齢を正しく入力してください"
                     return render_template("register.html",params=params)
                 else:
-                    password = int(request.form["password"])
-                    id = int(request.form["ID"])
+                    if request.form["password"] != "0000":
+                        password = int(request.form["password"])
+
+                    if request.form["ID"] != "0000000000":
+                        id = int(request.form["ID"])
             except:
                     params["msg"] = "パスワードは数字４桁, 講師番号は数字6桁にしてください"
                     return render_template("register.html",params=params)
@@ -101,6 +104,7 @@ def register():
                     sql = f'insert into teacher(teacher_id, password, name ,name_sub ,age, gender, subject_id, major_id ) values (%s, %s, %s, %s, %s, %s, %s, %s)'
                     try:
                         cursor.executemany(sql, values)
+                        params["msg"] = "講師の登録が完了しました"
                     except psycopg2.errors.UniqueViolation:
                         params["msg"] = "この講師番号は既に存在しています。"
                         return render_template("register.html", params=params)
@@ -112,7 +116,7 @@ def register():
                         return render_template("register.html", params=params)
                 connection.commit()
             cursor.close()
-        return render_template('register_complete.html')
+        return render_template('register.html', params=params)
     #  return redirect(url_for("login"))
 @app.route("/")
 def access():
@@ -1244,7 +1248,28 @@ def student_register():
             connection.commit()
         cursor.close()
         return render_template("student_register.html",params=params)
+
     if request.method == "POST":
+        departments_list = []
+        majors_list = []
+        with connection:
+            with connection.cursor() as cursor:
+                cursor.execute("select department from departments")
+                departments_db = cursor.fetchall()
+                for department_db in departments_db:
+                
+                    departments_list.append(department_db[0])
+                params["departments_list"] = departments_list
+
+                cursor.execute("select major from majors")
+                majors_db = cursor.fetchall()
+                for major_db in majors_db:
+                    if major_db[0] not in majors_list:
+                        majors_list.append(major_db[0])
+                params["majors_list"] = majors_list
+
+            connection.commit()
+        cursor.close()
         params["student_id"] = request.form["student_id"]
         params["name"] = request.form["name"]
         params["name_sub"] = request.form["name_sub"]
@@ -1259,8 +1284,10 @@ def student_register():
             elif re.compile('[0-9]+').fullmatch(request.form["name"]) == None and re.compile('[０-９]+').fullmatch(request.form["name"]) != None and re.compile('[ａ-ｚＡ-Ｚ]+').fullmatch(request.form["name"]) != None:
                 params["msg"] = "名前を正しく入力してください"
                 return render_template("student_register.html",params=params)
-            elif re.compile('[\u3041-\u309F]+').fullmatch(request.form["name_sub"]) == None:
+
+            elif regex.compile(r'[\p{Script=Katakana}ー]+').fullmatch(request.form["name_sub"]) == None:
                 params["msg"] = "ふりがなを入力してください"
+            
                 return render_template("student_register.html",params=params)
             elif re.compile('[0-9]+').fullmatch(request.form["age"]) == None:
                 params["msg"] = "年齢に文字が含まれています"
@@ -1269,19 +1296,25 @@ def student_register():
                 params["msg"] = "年齢を正しく入力してください"
                 return render_template("student_register.html",params=params)
             
-            
-            vali = int(request.form["student_id"])
+            if request.form["student_id"] != "0000000000":
+                vali = int(request.form["student_id"])
+
             
         except:
                 params["msg"] = "except in student_register"
-                return render_template("register.html",params=params)
+                return render_template("student_register.html",params=params)
         with connection:
             with connection.cursor() as cursor:
-                # cursor.fetchall
-                values = [[request.form["student_id"], request.form["name"],request.form["name_sub"], int(request.form["age"]), request.form["gender"],department_id,major_id]]
+                cursor.execute("select id from departments where department = %s",(request.form["department"],))
+                department_id = cursor.fetchall()
+                print(department_id)
+                cursor.execute("select id from majors where major = %s",(request.form["major"],))
+                major_id = cursor.fetchall()
+                values = [[request.form["student_id"], request.form["name"],request.form["name_sub"], int(request.form["age"]), request.form["gender"],department_id[0][0],major_id[0][0]]]
                 sql = f'insert into student(student_id, name ,name_sub ,age, gender, department_id, major_id ) values (%s, %s, %s, %s, %s, %s, %s)'
                 try:
                     cursor.executemany(sql, values)
+                    params["msg"] = "学生の登録が完了しました"
                 except psycopg2.errors.UniqueViolation:
                     params["msg"] = "この学籍番号は既に存在しています。"
                     return render_template("student_register.html", params=params)
@@ -1392,5 +1425,10 @@ def display_select():
             "subject":subject,
         }
         return render_template("display_select.html",params=params)
+
+@app.route("/subject_register",methods=["POST","GET"])
+def subject_register():
+    if request.method == "GET":
+        
 if __name__ == "__main__":
     app.run(port=12345, debug=True) # 12345でerrorがでたら8000にする
