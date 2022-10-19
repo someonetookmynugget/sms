@@ -1363,6 +1363,8 @@ def subject_select():
 
                 except:
                     print("EXCEPTTTTT FROM SUBEJCT SELECT")
+
+        print(subject_list)
         params = {
             "subject_list": subject_list
         }
