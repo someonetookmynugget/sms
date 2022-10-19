@@ -10,12 +10,8 @@
     <title>Document</title>
 </head>
 <body>
-  {% for sub_list in params.checked_subjects.values() %}
-  {% for sub in sub_list %}
-  {{sub}}
-  {% endfor %} 
-  {% endfor %}  
   {{params.msg}}
+  <!-- <a onclick="history.back()" class="">戻る</a> -->
   <form action="/teacher_classes_setting" method="POST" name="tcs">
       <select class="form-select" aria-label="Default select example" name="teacher">
 

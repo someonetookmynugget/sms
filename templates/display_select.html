@@ -6,8 +6,8 @@
   <link href="" rel="stylesheet">
 </head>
 <body>
-    <button onclick="history.back()" class="">戻る</button>
-    <button class="" type="button">ログアウト</button>
+    <!-- <a onclick="history.back()" class="">戻る</a> -->
+    <a href="/logout">ログアウト</a>
     <h1>授業：{{params.subject}}</h1>
     <form action="/attendance_check" method="POST">
       <input type="hidden" name="subject" value="{{ params.subject }}">

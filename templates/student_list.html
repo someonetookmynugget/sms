@@ -11,6 +11,7 @@
         <div class="content">
         
               <header>
+                <!-- <a onclick="history.go('/display_select')" class="">戻る</a> -->
                 <h1><a name="subject">{{ params.subject_name }}の成績一覧</a></h1>
                 <h3 style="color: red;">{{ params.msg }}</h3>
                 <a data-bs-toggle="modal" data-bs-target="#addtest" href="#addtest">
@@ -67,15 +68,16 @@
                         </tr>
 
                 </div >
-            
-                <form action="/edit_info" method="POST" name="edit_info">   
+               
                 <div class="info">
+                  <form action="/edit_info" method="POST" name="edit_info">
                         {% for student in params.students %}
-
+                        <!-- <form action="/edit_info" method="POST"> -->
                         <tr>
                         
                               <td><a href="/view_profile/{{ student.student_id }}">{{ student.student_id }}</a></td>
                               <td>{{ student.name }}</td>
+                        <!-- <form action="/edit_info" method="POST"> -->
                         {% for key, value in student.test.items() %}
                               <td>
                                 <!-- <form action="/edit_info" method="POST"> -->
@@ -113,9 +115,12 @@
                               </td>
                             
                         </tr>
+                        <!-- <a href="javascript:edit_info.submit()">保存</a> -->
+                        
                         {% endfor %}
+                        <a href="javascript:edit_info.submit()">保存</a>  
                 </div>
-              <a href="javascript:edit_info.submit()">保存</a>
+              <!-- <a href="javascript:edit_info.submit()">保存</a> -->
               <!-- <button type="submit" class="btn btn-primary">保存</button> -->
               </form>
               <form action="/edit_test_name" method="POST" name="edit_test_name">

@@ -255,7 +255,7 @@ def student_list():
                                 students.append(student)
 
 
-                            cursor.execute("SELECT test_name, test_score, student_id FROM test order by id asc")
+                            cursor.execute("SELECT test_name, test_score, student_id FROM test where subject = %s order by id asc",(subject,))
                             test = cursor.fetchall()
 
                         for i, row in enumerate(students):
@@ -297,7 +297,10 @@ def student_list():
             }
             connection.commit()
             cursor.close()
-            return render_template("student_list.html", params=params)             
+            if session["user_id"] == "000000":
+                return render_template("student_list_admin.html", params=params)
+            else:
+                return render_template("student_list.html", params=params)             
 
     #return redirect(url_for("login"))  
 
@@ -368,7 +371,7 @@ def add_test():
 
 
                         # データベースから値を選択
-                        cursor.execute("SELECT test_name, test_score, student_id FROM test order by id asc")
+                        cursor.execute("SELECT test_name, test_score, student_id FROM test where subject = %s order by id asc",(subject,))
                         rows2 = cursor.fetchall()
                         cursor.execute("select id from subjects where subject = %s",(subject,))
                         subject_ids = cursor.fetchall()
@@ -474,7 +477,7 @@ def delete_test():
                         print(test_names)
 
                         # データベースから値を選択
-                        cursor.execute("SELECT test_name, test_score, student_id FROM test order by id asc")
+                        cursor.execute("SELECT test_name, test_score, student_id FROM test where subject = %s order by id asc",(subject,))
                         rows2 = cursor.fetchall()
                         cursor.execute("select id from subjects where subject = %s",(subject,))
                         subject_ids = cursor.fetchall()
@@ -593,7 +596,7 @@ def edit_info():
 
 
                         # データベースから値を選択
-                        cursor.execute("SELECT test_name, test_score, student_id FROM test order by id asc")
+                        cursor.execute("SELECT test_name, test_score, student_id FROM test where subject = %s order by id asc",(subject,))
                         rows2 = cursor.fetchall()
                         print(rows2)
 
@@ -697,7 +700,7 @@ def edit_test_name():
 
                         # データベースから値を選択
                         print("B")
-                        cursor.execute("SELECT test_name, test_score, student_id FROM test order by id asc")
+                        cursor.execute("SELECT test_name, test_score, student_id FROM test where subject = %s order by id asc",(subject,))
                         rows2 = cursor.fetchall()
                         cursor.execute("select id from subjects where subject = %s",(subject,))
                         subject_ids = cursor.fetchall()
@@ -1376,6 +1379,13 @@ def subject_select():
 @app.route("/display_select", methods=["POST","GET"])
 def display_select():
     if request.method=="POST":
+        subject = request.form["subject"]
+        print("POST_display_Select")
+        params = {
+            "subject":subject,
+        }
+        return render_template("display_select.html",params=params)
+    if request.method=="GET":
         subject = request.form["subject"]
         print("POST_display_Select")
         params = {
