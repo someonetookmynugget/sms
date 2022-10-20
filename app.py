@@ -223,6 +223,88 @@ def student_list():
     # if session["loggedin"] == True:
         if request.method=="GET":
             print("stundet_list GET") 
+            print("POST stundet_list")
+            test_names = {}
+            msg = ""
+            subject = request.form["subject"]
+            students = []
+            students_list = []
+            
+            with connection:
+                with connection.cursor() as cursor:
+            # 授業名と一致するSUBJECT_IDをとってくるSUBJECT_IDでSTUNDET_IDとNAMEを取得する
+                    try:
+                        cursor.execute(f"select test_name from test where subject = %s order by id asc",(subject,))
+                        tests = cursor.fetchall()
+                        aaa = []
+                        for i in tests:
+                            if i not in aaa:
+                                aaa.append(i)
+                        for i, test in enumerate(aaa):
+                            test_names[f"test{i+1}"] = test[0]
+                            
+                        print("aaaaaa")
+                        cursor.execute("select id from subjects where subject = %s order by id asc",(request.form["subject"],))
+                        print("id execute ")
+                        subject_ids = cursor.fetchall()
+                        print(subject_ids,"subject_id")
+                        for id in subject_ids:
+                            print(id[0],"id")
+                                    #データベースから値を選択
+                            cursor.execute("select student_id, name, note, rate FROM student where subject_id = %s order by id asc", (id[0],))
+                            student_db = cursor.fetchall()
+
+                            for student in student_db:
+                                students.append(student)
+
+
+                            cursor.execute("SELECT test_name, test_score, student_id FROM test where subject = %s order by id asc",(subject,))
+                            test = cursor.fetchall()
+
+                        for i, row in enumerate(students):
+                            student_id = row[0]
+                            student_name = row[1]
+                            if row[2] == None:
+                                student_note = ""
+                            else:
+                                student_note = row[2]
+                            if row[3] == None:
+                                student_rate = ""
+                            else:
+                                student_rate = row[3]
+                            ### 複数要素あるものはAPPEND  students_list.append({"test":{},"something":{}})
+                            students_list.append({"test":{}})
+                            students_list[i]["name"] = student_name
+                            students_list[i]["student_id"] = student_id
+                            students_list[i]["note"] = student_note
+                            students_list[i]["rate"] = student_rate
+
+                            for j, row2 in enumerate(test):
+                                test_name = row2[0]
+                                # print(test_name,"test_naaaaaaaaaaaaaaaaame")
+                                test_score = row2[1]
+                                if row2[2] == students_list[i]["student_id"]:
+                                    # count = len(students_list[i]["test"])
+                                    students_list[i]["test"][f"{row2[0]}"] = test_score
+                        
+
+                            
+                    except:
+                        msg = "something went wrong in student_list"
+
+            params = {
+                "students": students_list,
+                "test_names": test_names,
+                "msg":msg,
+                "subject_name":subject
+            }
+            connection.commit()
+            cursor.close()
+            if session["user_id"] == "000000":
+                return render_template("student_list_admin.html", params=params)
+            else:
+                return render_template("student_list.html", params=params)
+
         if request.method=="POST":
             print("POST stundet_list")
             test_names = {}
@@ -1316,8 +1398,8 @@ def attendance_check():
         return render_template("attendance_check.html")
     if request.method=="POST":
         student_list = []
-        radio_list = request.form.args
-        print(radio_list)
+        # radio_list = request.form.args
+        # print(radio_list)
         subject = request.form["subject"]
         params = {
             "subject":subject
@@ -1459,11 +1541,6 @@ def subject_register():
                 subject = subject + str(timetable)
 
         subject = subject + "限)-" + str(grade) + "年"
-        print(subject)
-        print(unit)
-        print(major)
-        print(department)
-        print(timetables)
         with connection:
             with connection.cursor() as cursor:
                 for timetable in timetables:
@@ -1475,7 +1552,8 @@ def subject_register():
                     major_id = cursor.fetchone()
                     major_id = major_id[0]
 
-                    cursor.execute(f'insert into subject(subject, department_id, major_id, unit, timetable, grade, dow) values (%s,%s,%s,%s,%s,%s,%s);',(name, "",student, request.form["subject"]))
+
+                    cursor.execute(f'insert into subject(subject, department_id, major_id, unit, timetable, grade, dow) values (%s,%s,%s,%s,%s,%s,%s);',(subject, department_id,major_id,unit,timetable,grade,dow))
             connection.commit()
         cursor.close()
         return render_template("subject_register.html",params=params)

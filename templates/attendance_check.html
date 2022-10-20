@@ -19,13 +19,12 @@
             学生番号、　名前、ふりがな、日付、ドロップダウンメニューで出席、欠席、遅刻、早退、（公欠はどうする？
         </p>
 
-        <form action="/attendance_check" method="POST">
+        <form action="/attendance_check" method="POST" name="attendance_check">
             <input type="hidden" name="subject" value="{{params.subject}}">
             {% for student in params.student_list %}
             {{student.student_id}}
             {{student.name}}
             {{student.name_sub}}
-            <div class="radio_button">
                 <input type="radio" id="attend" name="attendance_{{student.student_id}}" value="出席" class="radio">
                 <label class="label label-1" for="attend">出席</label>
                 <input type="radio" id="absence" name="attendance_{{student.student_id}}" value="欠席" class="radio">
@@ -36,7 +35,7 @@
                 <label class="label label-4" for="tardy">遅刻</label>
                 <input type="radio" id="left_early" name="attendance_{{student.student_id}}" value="早退" class="radio">
                 <label class="label label-5" for="left_early">早退</label>
-            </div>
+
             <br>
             {%endfor%}
             
@@ -65,7 +64,7 @@
                 <input class="form-check-input" type="radio" name="inlineRadios" id="inlineRadio6" value="6">
                 <label class="form-check-label" for="inlineRadio6">6</label>
             </div>
-            <input type="submit" name="subject" value="送信">
+            <a href="javascript:attendance_check.submit()">送信</a>
         </form>
     </div>
 </body>

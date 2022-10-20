@@ -8,7 +8,7 @@
 </head>
 <body>
 
-  <!-- <a onclick="history.back()" class="">戻る</a> -->
+  <a onclick="history.back()" class="">戻る</a>
   <div class="container">
     <h1>授業の追加</h1>
     <p>{{ params.msg }}</p>
@@ -19,13 +19,8 @@
       <input type="text" class="form-control" name="subject" id="exampleInputName1" value="{{ params.subject}}" required>
     </div>
     <div class="mb-3">
-    <select class="form-select" aria-label="Default select example" name="unit">
-
-        <option selected>単位数</option>
-        <option value="2">2</option>
-        <option value="4">4</option>
-
-    </select>
+      <label>単位数</label>
+      <a name="unit">: 2</a>
     </div>
     <div class="mb-3">
     <select class="form-select" aria-label="Default select example" name="department">

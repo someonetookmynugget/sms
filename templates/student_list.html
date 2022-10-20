@@ -11,6 +11,11 @@
         <div class="content">
         
               <header>
+
+                <form action="/display_select" method="POST" name="display_select">
+                  <input type="hidden" name="subject" value="{{params.subject_name}}">
+                  <a href="javascript:display_select.submit()">戻る</a> 
+                </form>
                 <!-- <a onclick="history.go('/display_select')" class="">戻る</a> -->
                 <h1><a name="subject">{{ params.subject_name }}の成績一覧</a></h1>
                 <h3 style="color: red;">{{ params.msg }}</h3>
