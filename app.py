@@ -898,7 +898,7 @@ def view_profile(student_id):
                 connection.commit()
             cursor.close()        
             print(subject_list,"subject_list")
-            # 日付
+            # 日
             # x = list(student["rate_history"].keys())
             # # 出席率
             # y = list(student["rate_history"].values())
