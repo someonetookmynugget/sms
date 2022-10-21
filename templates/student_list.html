@@ -9,6 +9,7 @@
 </head>
 <body>
         <div class="content">
+          <div class="content2">
         
               <header>
 
@@ -50,12 +51,11 @@
                 <form action="/delete_test" method="POST" name="delete_test">
                           <!-- <input type="submit" class="btn btn-primary" value="テスト項目を削除"> -->
                           <input type="hidden" name="subject" value="{{ params.subject_name }}">
-                          <a href="javascript:delete_test.submit()">テスト項目を削除</a>
-                </form>
-                <a data-bs-toggle="modal" data-bs-target="#edit_test_names" href="#edit_test_names">
-                        テストの名前を編集
-                </a>
+                          <p class="button_line006"><a href="javascript:delete_test.submit()">削除</a></p>
+                        </form>
+                        <p class="button_line006"><a data-bs-toggle="modal" data-bs-target="#edit_test_names">テストの名前を編集</a></p>
               </header>
+            </div>
               
               <table>
                 <div class="titles">
@@ -75,58 +75,64 @@
                 </div >
                
                 <div class="info">
-                  <form action="/edit_info" method="POST" name="edit_info">
+                  <!-- <form action="/edit_info" method="POST" name="edit_info"> -->
+                    <!-- <input type="hidden" name="subject" value="{{ params.subject_name }}"> -->
                         {% for student in params.students %}
-                        <!-- <form action="/edit_info" method="POST"> -->
-                        <tr>
-                        
-                              <td><a href="/view_profile/{{ student.student_id }}">{{ student.student_id }}</a></td>
-                              <td>{{ student.name }}</td>
-                        <!-- <form action="/edit_info" method="POST"> -->
-                        {% for key, value in student.test.items() %}
-                              <td>
-                                <!-- <form action="/edit_info" method="POST"> -->
-                                  {% for key2, value2 in params.test_names.items() %}
-                                    {% if key == value2 %}
-                                      <input type="hidden" name="subject" value="{{ params.subject_name }}">
-                                      <input type="hidden" name="student_id" value="{{ student.student_id }}">
-                                      <input type="hidden" name="test_name" value="{{ value2 }}"> 
-                                    {% endif %}
+                        <form action="/edit_info" method="POST">
+                        <input type="hidden" name="subject" value="{{ params.subject_name }}">
+                        <!-- <input type="hidden" name="student_id" value="{{ student.student_id }}"> -->
+                              <!-- <form action="/edit_info" method="POST" name="edit_info"> -->
+                              <tr>
+
+                                        <td><a href="/view_profile/{{ student.student_id }}">{{ student.student_id }}</a></td>
+                                        <td>{{ student.name }}</td>
+                                        <!-- <form action="/edit_info" method="POST" name="edit_info"> -->
+                                  {% for key, value in student.test.items() %}
+                                        <td>
+                                          <!-- <form action="/edit_info" method="POST"> -->
+                                            {% for key2, value2 in params.test_names.items() %}
+                                              {% if key == value2 %}
+                                                <input type="hidden" name="subject" value="{{ params.subject_name }}">
+                                                <input type="hidden" name="student_id" value="{{ student.student_id }}">
+                                                <input type="hidden" name="test_name" value="{{ value2 }}"> 
+                                              {% endif %}
+                                            {% endfor %}
+
+                                            {% if value != "" %}
+                                              <input type="text" name="test_score" value="{{ value }}点">
+                                            {% else %}
+                                              <input type="text" name="test_score" value="{{ value }}">
+                                            {% endif %}
+
+
+                                        </td>
+                                      
                                   {% endfor %}
-                                  
-                                  {% if value != "" %}
-                                    <input type="text" name="test_score" value="{{ value }}点">
-                                  {% else %}
-                                    <input type="text" name="test_score" value="{{ value }}">
-                                  {% endif %}
-                                  
-                                  
-                              </td>
-                        
+                                        <td>{{ student.attend_rate }}</td>
+                                        <td><textarea type="text" name="note">{{student.note}}</textarea></td>
+                                        <td>  
+                                          <select name="rate">
+                                            <option value="{{student.rate}}">{{student.rate}}</option>
+                                            <option value="S">S</option>
+                                            <option value="A">A</option>
+                                            <option value="B">B</option>
+                                            <option value="C">C</option>
+                                            <option value="D">D</option>
+                                            <option value="E">E</option>
+                                            <option value="F">F</option>
+                                          </select> 
+                                        </td>
+                                      
+                              </tr>
+                              <!-- <a href="javascript:edit_info.submit()">保存</a> -->
+
                         {% endfor %}
-                              <td>{{ student.attend_rate }}</td>
-                              <td><textarea type="text" name="note">{{student.note}}</textarea></td>
-                              <td>  
-                                <select name="rate">
-                                  <option value="{{student.rate}}">{{student.rate}}</option>
-                                  <option value="S">S</option>
-                                  <option value="A">A</option>
-                                  <option value="B">B</option>
-                                  <option value="C">C</option>
-                                  <option value="D">D</option>
-                                  <option value="E">E</option>
-                                  <option value="F">F</option>
-                                </select> 
-                              </td>
-                            
-                        </tr>
-                        <!-- <a href="javascript:edit_info.submit()">保存</a> -->
                         
-                        {% endfor %}
-                        <a href="javascript:edit_info.submit()">保存</a>  
+                        <!-- <a href="javascript:edit_info.submit()">保存</a>   -->
+                        <!-- <button type="submit" class="btn btn-primary">保存</button> -->
                 </div>
               <!-- <a href="javascript:edit_info.submit()">保存</a> -->
-              <!-- <button type="submit" class="btn btn-primary">保存</button> -->
+              <button type="submit" class="btn btn-primary">保存</button>
               </form>
               <form action="/edit_test_name" method="POST" name="edit_test_name">
               <div class="edit">
@@ -161,7 +167,9 @@
                 </form>    
                 </table>
         </div>
-
+        <div class="homeicon">
+          <a href="home.html"><p class="text text-center"></i><span class="tooltip"><i class="fa-solid fa-house"></i><span class="description_top">Homeへ</span></span></p>
+        </div>
 </body>
 
 </html>

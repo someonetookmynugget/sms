@@ -157,22 +157,69 @@ table td {
     text-align: center;
 }
 }
-
-/* .radio{
-     display:none;
+dialog {
+    display: block; 
 }
 
-.label{
-    padding:5px 10px;
-    background-color:rgb(113, 113, 113);
+dialog:not(:target):not([opens]) { 
+   display: none; 
+}
+
+
+
+
+
+/* homeアイコン */
+
+
+
+.text{
+    margin: 150px 0;
+}
+
+.text-center{
+    text-align: center;
+    size: 100px;
+}
+
+
+/* FontAwesome ----------------------------------------------------- */
+p i{
+    color:black;
+    
+}
+
+
+/* tooltip --------------------------------------------------------- */
+.tooltip { /* 補足説明するテキストのスタイル */
+    position: relative;
+    cursor: pointer;
+    padding: 0 5px;
+    font-size: 3em;
+    font-weight:800;
+    color: #ff4646;
+    }
+    .description_top { /* ツールチップのスタイル */
+    width: 200px; /* 横幅 */
+    position: absolute;
+    left: 50%;
+    bottom: 80%; /* Y軸の位置 */
+    transform: translateX(-50%);
+    margin-bottom: 8px; /* テキストとの距離 */
+    padding: 8px;
+    border-radius: 10px; /* 角の丸み */
+    background-color: #666;
+    font-size: 0.7em;
     color: #fff;
-    cursor:pointer;
-}
-
-#attend:checked ~ .label-1,
-#absence:checked ~ .label-2,
-#official_absence:checked ~ .label-3,
-#tardy:checked ~ .label-4,
-#left_early:checked ~ .label-5{
-    background-color: #5b5b5b;
-} */
+    text-align: center;
+    visibility: hidden; /* ツールチップを非表示に */
+    opacity: 0; /* 不透明度を0％に */
+    z-index: 1;
+    transition: 0.5s all; /* マウスオーバー時のアニメーション速度 */
+    }
+    .tooltip:hover .description_top { /* マウスオーバー時のスタイル */
+    bottom: 100%; /* Y軸の位置 */
+    visibility: visible; /* ツールチップを表示 */
+    opacity: 1; /* 不透明度を100％に */
+    }
+    
