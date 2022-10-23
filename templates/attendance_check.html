@@ -35,15 +35,19 @@
                 <label class="label label-4" for="tardy">遅刻</label>
                 <input type="radio" id="left_early" name="attendance_{{student.student_id}}" value="早退" class="radio">
                 <label class="label label-5" for="left_early">早退</label>
-
             <br>
             {%endfor%}
-            
-            <h3>時間</h3>
+            <div class="mb-3">
+            <label>日付：</label>
+            <input type="date" name="date" value="{{params.today}}">
+            </div>
+            <div class="mb-3">
+            <label>時間：</label>
             <div class="form-check form-check-inline">
                 <input class="form-check-input" type="radio" name="inlineRadios" id="inlineRadio1" value="1">
                 <label class="form-check-label" for="inlineRadio1">1</label>
             </div>
+
             <div class="form-check form-check-inline">
                 <input class="form-check-input" type="radio" name="inlineRadios" id="inlineRadio2" value="2">
                 <label class="form-check-label" for="inlineRadio2">2</label>
@@ -63,6 +67,7 @@
             <div class="form-check form-check-inline">
                 <input class="form-check-input" type="radio" name="inlineRadios" id="inlineRadio6" value="6">
                 <label class="form-check-label" for="inlineRadio6">6</label>
+            </div>
             </div>
             <a href="javascript:attendance_check.submit()">送信</a>
         </form>

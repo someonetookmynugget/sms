@@ -1353,10 +1353,19 @@ def attendance_check():
         student_list = []
         # radio_list = request.form.args
         # print(radio_list)
+        d_today = datetime.date.today()
         subject = request.form["subject"]
+        try:
+            date = request.form["date"]
+            print(date)
+        except:
+            pass
+        
         params = {
-            "subject":subject
+            "subject":subject,
+            "today":d_today
         }
+        valid = []
         with connection:
             with connection.cursor() as cursor:
                 cursor.execute("select id from subjects where subject = %s",(subject,))
@@ -1365,10 +1374,12 @@ def attendance_check():
                     cursor.execute("select student_id, name, name_sub from student where subject_id = %s", (subject_id[0],))
                     student_details = cursor.fetchall()
                     for student_detail in student_details:
-                        student_list.append({})
-                        student_list[len(student_list)-1]["student_id"] = student_detail[0]
-                        student_list[len(student_list)-1]["name"] = student_detail[1]
-                        student_list[len(student_list)-1]["name_sub"] = student_detail[2]
+                        if student_detail[0] not in valid:
+                            valid.append(student_detail[0])
+                            student_list.append({})
+                            student_list[len(student_list)-1]["student_id"] = student_detail[0]
+                            student_list[len(student_list)-1]["name"] = student_detail[1]
+                            student_list[len(student_list)-1]["name_sub"] = student_detail[2]
 
                 
             connection.commit()
