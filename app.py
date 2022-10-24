@@ -1351,8 +1351,8 @@ def attendance_check():
         return render_template("attendance_check.html")
     if request.method=="POST":
         student_list = []
-        # radio_list = request.form.args
-        # print(radio_list)
+        attendance_list = request.form.getlist("attendance_div")
+        print(attendance_list)
         d_today = datetime.date.today()
         subject = request.form["subject"]
         try:
