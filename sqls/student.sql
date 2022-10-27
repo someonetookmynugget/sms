@@ -11,18 +11,14 @@ create table student (
     subject_id int,
     rate varchar(2),
     note varchar (255),
-    total_unit int,
-    total_attend int,
-    total_absence int,
-    tardy int,
-    leave_early int,
-    official_absence int,
+    total_unit int default 0,
+    total_attend int default 0,
+    total_absence int default 0,
+    tardy int default 0,
+    leave_early int default 0,
+    official_absence int default 0,
+    total_lessons int default 0,
 
-
-
-
-
-    
     FOREIGN KEY(department_id) 
     REFERENCES departments(id),
 

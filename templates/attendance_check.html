@@ -13,15 +13,14 @@
         <header>
             <h1>{{params.subject}}の出欠確認</h1>
         </header>
-        <p>ここに選択した授業の出欠機能を付ける
 
-            必要なものは：
-            学生番号、　名前、ふりがな、日付、ドロップダウンメニューで出席、欠席、遅刻、早退、（公欠はどうする？
-        </p>
 
         <form action="/attendance_check" method="POST" name="attendance_check">
             <input type="hidden" name="subject" value="{{params.subject}}">
             {% for student in params.student_list %}
+            <input type="hidden" name="student_id" value="{{student.student_id}}">
+            <input type="hidden" name="name" value="{{student.name}}">
+            <input type="hidden" name="name_sub" value="{{student.name_sub}}">
             {{student.student_id}}
             {{student.name}}
             {{student.name_sub}}

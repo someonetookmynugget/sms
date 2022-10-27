@@ -822,7 +822,18 @@ def edit_test_name():
         return render_template("student_list.html", params=params)        
     # return redirect(url_for("login"))
 
-
+@app.route("/view_profile/<student_id>/attendance_graph", methods=["GET", "POST"])
+def view_profile(student_id):
+    if request.method=="GET":
+        attendance_rate = []
+        subject_list = []
+        with connection:
+            with connection.cursor() as cursor:
+                    cursor.execute("select subject_id from student where subject = %s and student_id = %s",(subject,student_id,))
+                    subject_ids = cursor.fetchall()
+                    for subject_id in subject_ids:
+                        cursor.execute("select total_lessons from student where student_id = %s and subject_id = %s")
+        
 
 @app.route("/view_profile/<student_id>",methods=["GET","POST"])
 def view_profile(student_id):
@@ -965,7 +976,8 @@ def histogram(student_id, subject):
                         cursor.execute("select subject from subjects where id = %s",(subject_id[0],))
                         subject_name = cursor.fetchall()
                         subject_name = subject_name[0]
-                        subject_list.append(subject_name[0])
+                        if subject_name[0] not in subject_list:
+                            subject_list.append(subject_name[0])
             connection.commit()
         cursor.close()
         # パラメータの  
@@ -1350,9 +1362,21 @@ def attendance_check():
     if request.method=="GET":
         return render_template("attendance_check.html")
     if request.method=="POST":
+        id_list = request.form.getlist("student_id")
+        attendance_list = []
         student_list = []
-        attendance_list = request.form.getlist("attendance_div")
+        name_list = request.form.getlist("name")
+        name_sub_list = request.form.getlist("name_sub")
+        timetable = request.form["timetable"]
+        print(id_list)
+
+
+        for id in id_list:
+            result = request.form[f"attendance_{id}"]
+            attendance_list.append(result)
         print(attendance_list)
+
+
         d_today = datetime.date.today()
         subject = request.form["subject"]
         try:
@@ -1368,6 +1392,36 @@ def attendance_check():
         valid = []
         with connection:
             with connection.cursor() as cursor:
+                # cursor.execute("select major_id from student where student_id = %s",)
+                # cursor.execute("select id from subjects where subject = %s and timetable = %s",(subject, ))
+                cursor.execute("select id from subjects where subject = %s",(subject,))
+                subject_ids = cursor.fetchall()
+                print(subject_ids)
+                for subject_id in subject_ids:
+                    ###attedance tableにインサート
+                    for i, student in enumerate(id_list):
+                        cursor.execute("select exists(select * from student where subject_id = %s and student_id = %s)",(subject_id[0], student,))
+                        exists = cursor.fetchone()
+                        cursor.execute("select exists(select * from subjects where id = %s and timetable = %s and subject = %s)",(subject_id[0], timetable, subject,))
+                        exists2 = cursor.fetchone()
+                        cursor.execute("select exists(select * from attendance where student_id = %s and attendance_day = %s and subject_id = %s and timetable = %s)",(student, date, subject_id[0],timetable,))
+                        exists3 = cursor.fetchone()
+                        if exists[0] == True and exists2[0] == True and exists3[0] == False:
+                            cursor.execute("insert into attendance(student_id, attendance, attendance_day, subject_id, timetable) values(%s, %s, %s, %s, %s)",(student, attendance_list[i], date,subject_id[0], timetable)) 
+                            ### student table のupdate
+                            if attendance_list[i] == "出席":
+                                cursor.execute("update student set total_attend = total_attend + 1,total_lessons = total_lessons + 1 where student_id = %s and subject_id = %s",(student, subject_id[0],))
+                            elif attendance_list[i] == "欠席":
+                                cursor.execute("update student set total_absence = total_absence + 1,total_lessons = total_lessons + 1 where student_id = %s and subject_id = %s",(student, subject_id[0],))
+                            elif attendance_list[i] == "遅刻":
+                                cursor.execute("update student set tardy = tardy + 1,total_lessons = total_lessons + 1 where student_id = %s and subject_id = %s",(student, subject_id[0],))
+                            elif attendance_list[i] == "早退":
+                                cursor.execute("update student set leave_early = leave_early + 1,total_lessons = total_lessons + 1 where student_id = %s and subject_id = %s",(student, subject_id[0],))
+                            elif attendance_list[i] == "公欠":
+                                cursor.execute("update student set official_absence = official_absence + 1,total_lessons = total_lessons + 1 where student_id = %s and subject_id = %s",(student, subject_id[0],))
+
+
+                    ### 生徒情報を取得
                 cursor.execute("select id from subjects where subject = %s",(subject,))
                 subject_ids = cursor.fetchall()
                 for subject_id in subject_ids:
@@ -1380,11 +1434,8 @@ def attendance_check():
                             student_list[len(student_list)-1]["student_id"] = student_detail[0]
                             student_list[len(student_list)-1]["name"] = student_detail[1]
                             student_list[len(student_list)-1]["name_sub"] = student_detail[2]
-
-                
             connection.commit()
         cursor.close()
-
 
         params["student_list"] = student_list
         return render_template("attendance_check.html",params=params)
