@@ -1,3 +1,5 @@
+
+
 *{
     margin: 0;
     padding: 0;
@@ -283,4 +285,37 @@ a{
 }
 a:hover{
     color: #000000;
+}
+
+/* 保存ボタン */
+.button_ctt button{
+    position: absolute;
+    right: 0;
+    bottom: 0;
+}
+
+/* 戻るボタン */
+.back{
+    font-size: 120%;
+}
+
+
+
+.headline{
+
+    margin-top: 60px;
+    text-align: center;
+    position: relative;
+}
+.headline:before {
+    content:"Headline";
+    position: absolute;
+    top: -50px;
+    left: 50%;
+    transform: translateX(-50%) rotate(-8deg);
+    color: rgb(233, 108, 108, 0.4);
+    font-size: 60px;
+    font-family: luxus-brut, cursive;
+    font-style: italic;
+    z-index: -1;
 }
