@@ -308,7 +308,7 @@ a:hover{
     position: relative;
 }
 .headline:before {
-    content:"Headline";
+    content:"";
     position: absolute;
     top: -50px;
     left: 50%;
