@@ -8,8 +8,7 @@ insert into student (
     major_id,
     class_id,
     subject_id,
-    rate,
-    note
+    grade
     )
 values(
     '2004230006',
@@ -21,8 +20,7 @@ values(
     2,
     6,
     3,
-    '',
-    ''
+    3
 );
 
 insert into student (
@@ -35,8 +33,7 @@ insert into student (
     major_id,
     class_id,
     subject_id,
-    rate,
-    note
+    grade
     )
 values(
     '2004230011',
@@ -48,8 +45,7 @@ values(
     2,
     6,
     3,
-    '',
-    ''
+    3
 );
 insert into student (
     student_id,
@@ -61,8 +57,7 @@ insert into student (
     major_id,
     class_id,
     subject_id,
-    rate,
-    note
+    grade
     )
 values(
     '2004240012',
@@ -74,8 +69,7 @@ values(
     1,
     4,
     1,
-    '',
-    ''
+    3
 );
 insert into student (
     student_id,
@@ -87,8 +81,7 @@ insert into student (
     major_id,
     class_id,
     subject_id,
-    rate,
-    note
+    grade
     )
 values(
     '2004230006',
@@ -100,8 +93,7 @@ values(
     2,
     6,
     4,
-    '',
-    ''
+    3
 );
 insert into student (
     student_id,
@@ -113,8 +105,7 @@ insert into student (
     major_id,
     class_id,
     subject_id,
-    rate,
-    note
+    grade
     )
 values(
     '2004230011',
@@ -126,8 +117,7 @@ values(
     2,
     6,
     4,
-    '',
-    ''
+    3
 );
 insert into student (
     student_id,
@@ -139,8 +129,7 @@ insert into student (
     major_id,
     class_id,
     subject_id,
-    rate,
-    note
+    grade
     )
 values(
     '2004230006',
@@ -152,8 +141,7 @@ values(
     2,
     6,
     5,
-    '',
-    ''
+    3
 );
 insert into student (
     student_id,
@@ -165,8 +153,7 @@ insert into student (
     major_id,
     class_id,
     subject_id,
-    rate,
-    note
+    grade
     )
 values(
     '2004230011',
@@ -178,8 +165,7 @@ values(
     2,
     6,
     5,
-    '',
-    ''
+    3
 );
 insert into student (
     student_id,
@@ -191,8 +177,7 @@ insert into student (
     major_id,
     class_id,
     subject_id,
-    rate,
-    note
+    grade
     )
 values(
     '2004240012',
@@ -204,6 +189,5 @@ values(
     1,
     4,
     2,
-    '',
-    ''
+    3
 );
