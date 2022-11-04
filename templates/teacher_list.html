@@ -18,7 +18,7 @@
       <select class="form-select" aria-label="Default select example" name="teacher">
 
         {% if params.select_teacher == "講師選択" %}
-        <option value="0" selected>{{params.select_teacher}}</option>
+        <option value="講師選択" selected>{{params.select_teacher}}</option>
         {% else %}
         <option value="{{params.select_teacher}}" selected>{{params.select_teacher}}  を選択中</option>
         {% endif %}
@@ -30,7 +30,7 @@
       <div class="mb-3">
       <select class="form-select" aria-label="Default select example" name="grade">
         {% if params.select_grade == "学年選択" %}
-        <option value="0" selected>{{params.select_grade}}</option>
+        <option value="学年選択" selected>{{params.select_grade}}</option>
         {% else %}
         <option value="{{params.select_grade}}" selected>{{params.select_grade}}  を選択中</option>
         {% endif %}
@@ -44,7 +44,7 @@
       <select class="form-select" aria-label="Default select example" name="major">
 
         {% if params.select_major == "専攻選択" %}
-        <option value="0" selected>{{params.select_major}}</option>
+        <option value="専攻選択" selected>{{params.select_major}}</option>
         {% else %}
         <option value="{{params.select_major}}" selected>{{params.select_major}}  を選択中</option>
         {% endif %}

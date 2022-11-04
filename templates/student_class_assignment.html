@@ -46,7 +46,7 @@
         <input type="hidden" name="grade" value="{{params.select_grade}}">
         <select class="form-select" aria-label="Default select example" name="subject">
             {% if params.select_subject == "授業選択" %}
-            <option value="0" selected>{{params.select_subject}}</option>
+            <option value="授業選択" selected>{{params.select_subject}}</option>
             {% else %}
             <option value="{{params.select_subject}}" selected>{{params.select_subject}}  を選択中</option>
             {% endif %}

@@ -1230,19 +1230,46 @@ def teacher_classes_setting():
 
 @app.route("/form_check", methods=["POST"])
 def form_check():
+    params= {}
     select_grade = "学年選択"
     select_teacher = "講師選択"
     select_major = "専攻選択"
+    checked_subjects = {}
+    subjects = [] 
+    teachers = []
+    majors = [] 
+    msg = ""
     if request.method=="POST":
-        major = request.form["major"]
-        grade = request.form["grade"]
-        teacher = request.form["teacher"]
-        check_list = request.form.getlist("check")
-        checked_subjects = {}
-        subjects = [] 
-        teachers = []
-        majors = [] 
-        msg = ""
+        try:
+            major = request.form["major"]
+            grade = request.form["grade"]
+            teacher = request.form["teacher"]
+            check_list = request.form.getlist("check")
+        except KeyError:
+            # 講師を取得
+            with connection:
+                with connection.cursor() as cursor:
+                    cursor.execute("select name from teacher order by id asc")
+                    teachers_db = cursor.fetchall()
+                    for teacher in teachers_db:
+                        if teacher[0] not in teachers:
+                            teachers.append(teacher[0])
+                    # 選考の取得
+                    cursor.execute("select major from majors order by id asc")
+                    majors_db = cursor.fetchall()
+                    for major in majors_db:
+                        if major[0] not in majors:
+                            majors.append(major[0])
+                    msg = "講師、学年、専攻を適用してください"
+                    params["teachers"] = teachers
+                    params["majors"] = majors
+                    params["msg"] = msg
+                    params["select_grade"] = select_grade
+                    params["select_teacher"] = select_teacher
+                    params["select_major"] = select_major
+                connection.commit()
+            cursor.close()
+            return render_template("teacher_list.html", params=params)
         with connection:
             with connection.cursor() as cursor:
                 select_grade = grade
@@ -1697,7 +1724,13 @@ def student_class_assignment():
                 major_id = cursor.fetchone()
                 
                 ### 選択された内容をもとに授業を取得する
-                cursor.execute("select subject from subjects where major_id = %s and grade = %s",(major_id[0], select_grade[0],))
+                try:
+                    cursor.execute("select subject from subjects where major_id = %s and grade = %s",(major_id[0], select_grade[0],))
+                except TypeError:
+                    print("a")
+                    msg = "学年または専攻を選択してください"
+                    params["msg"] = msg
+                    return render_template("student_class_assignment.html", params=params)
                 subjects_db = cursor.fetchall()
                 for subject in subjects_db:
                     if subject[0] not in subjects:
