@@ -814,8 +814,14 @@ def graph_attendance(student_id):
         subject_list = []
         subject_name_list = []
         attendance_rate_list = []
+        total_unit = 0
         with connection:
             with connection.cursor() as cursor:
+                    cursor.execute("select total_unit from student where student_id = %s", (student_id,))
+                    units = cursor.fetchall()
+
+                    for unit in units:
+                        total_unit += unit[0]
                     cursor.execute("select subject_id from student where student_id = %s order by id asc",(student_id,))
                     subject_ids = cursor.fetchall()
                     
@@ -824,8 +830,7 @@ def graph_attendance(student_id):
                         subject_names = cursor.fetchall()
                         if subject_names[0][0] not in subject_name_list:
                             subject_name_list.append(subject_names[0][0])
-                        print(subject_name_list)
-
+                        
                     for subject_name in subject_name_list:
                         cursor.execute("select id from subjects where subject = %s",(subject_name,))
                         ids = cursor.fetchall()
@@ -837,11 +842,11 @@ def graph_attendance(student_id):
                             total_lessons = 0
                             total_attendance = 0
                             official_absence = 0
-                            print(vali,"vali")
+                            
                             for v in vali:
                                 cursor.execute("select total_lessons, total_attend, official_absence from student where student_id = %s and subject_id = %s", (student_id, v,))   
                                 aa = cursor.fetchall()
-                                print(aa)
+                                
                                 for a in aa:
                                     total_lessons += a[0]
                                     total_attendance += a[1]
@@ -853,15 +858,13 @@ def graph_attendance(student_id):
                             else:
                                 attendance_rate = 0
                                 attendance_rate_list.append(attendance_rate)
-                    print(attendance_rate_list)
-                    print(subject_name_list)
+
                     fig, ax = plt.subplots()
                     y = range(1, len(attendance_rate_list)+1)
                     color = ["red" if i <= 66.6 else "skyblue" for i in attendance_rate_list]
                     rects1 = ax.bar(y, attendance_rate_list,tick_label=subject_name_list, color=color)
 
                     ax.bar_label(rects1, label_type="edge")
-                    plt.title(subject)
                     plt.yticks(np.arange(0, 101, step=20))
 
                     plt.ylabel("点数")
@@ -908,7 +911,7 @@ def graph_attendance(student_id):
             "age":age,
             "class_name":class_name,
             "gender":gender,
-            "subject":subject,
+            "total_unit":total_unit,
             "subject_list":subject_list
         }      
         params["image"] = path
@@ -922,11 +925,17 @@ def view_profile(student_id):
             print("AAAAAAAAAAAAAAAAAA")###### 消す
             test_names = []
             subject_list = []
+            total_unit = 0
             with connection:
                 with connection.cursor() as cursor:
-
                     
-                    cursor.execute("select student_id, name, department_id, major_id, age, class_id, gender , total_unit from student where student_id = %s",(student_id,))
+                    cursor.execute("select total_unit from student where student_id = %s", (student_id,))
+                    units = cursor.fetchall()
+
+                    for unit in units:
+                        total_unit += unit[0]
+
+                    cursor.execute("select student_id, name, department_id, major_id, age, class_id, gender from student where student_id = %s",(student_id,))
                     student_details = cursor.fetchall()
                     for detail in student_details:
                         student_id = detail[0]
@@ -936,7 +945,6 @@ def view_profile(student_id):
                         age = detail[4]
                         class_id = detail[5]
                         gender = detail[6]
-                        total_unit = detail[7]
 
                         cursor.execute("select department from departments where id = %s",(department_id,))
                         department_name = cursor.fetchall()
@@ -954,12 +962,10 @@ def view_profile(student_id):
 
                     cursor.execute("select subject_id from student where student_id = %s",(student_id,))
                     subject_ids = cursor.fetchall()
-                    print(subject_ids)
+
                     for subject_id in subject_ids:
-                        print("A")
-                        print("subject_id",subject_id)
+
                         cursor.execute("select subject from subjects where id = %s",(subject_id[0],))
-                        print("b")
                         subject_name = cursor.fetchall()
                         subject_name = subject_name[0]
                         if subject_name[0] not in subject_list:
@@ -974,9 +980,6 @@ def view_profile(student_id):
                                 test_names.append(test_name)
                 connection.commit()
             cursor.close() 
-            print(total_unit)       
-            print(subject_list,"subject_list")
-            print(test_names)
             params = {
                 "student_id": student_id,
                 "student_name":student_name,
@@ -1000,12 +1003,18 @@ def histogram(student_id, subject):
         score = []
         subject_list = []
         tests = []
+        total_unit = 0
         with connection:
             with connection.cursor() as cursor:
-                
+                    cursor.execute("select total_unit from student where student_id = %s", (student_id,))
+                    units = cursor.fetchall()
+
+                    for unit in units:
+                        total_unit += unit[0]
+
                     cursor.execute("select test_name, test_score from test where subject = %s and student_id = %s order by id asc",(subject,student_id,))
                     tests_db = cursor.fetchall()
-                    print(tests_db)
+                    
 
                     for test in tests_db:
                         if test not in tests:
@@ -1015,7 +1024,7 @@ def histogram(student_id, subject):
                         test_score = test[1]
                         name.append(test_name)
                         name_label.append(test_name)
-                        print(test_score,"test_score")
+
                         if test_score == "":
                             test_score = 0
                         score.append(int(test_score))
@@ -1074,10 +1083,9 @@ def histogram(student_id, subject):
             "class_name":class_name,
             "gender":gender,
             "subject":subject,
-            "subject_list":subject_list
-            #  "student": student,
-            #  "image": path,
-            #  "test_names": test_names
+            "subject_list":subject_list,
+            "total_unit":total_unit
+
         }         
         params["image"] = path
         params["test_names"] = name_label
@@ -1152,7 +1160,6 @@ def teacher_classes_setting():
         if request.method == "POST":
             checked_subjects = {}
             subjects = []
-            print("teacher_classes_setting PSOT")###### 消す
             major = request.form["major"]
             grade = request.form["grade"]
             teacher = request.form["teacher"]
@@ -1447,16 +1454,8 @@ def attendance_check():
         id_list = request.form.getlist("student_id")
         attendance_list = []
         student_list = []
-        # name_list = request.form.getlist("name")
-        # name_sub_list = request.form.getlist("name_sub")
-        # timetable = request.form["timetable"]
-
-
-
-
-
-
         d_today = datetime.date.today()
+
         subject = request.form["subject"]
         try:
             date = request.form["date"]
@@ -1481,8 +1480,6 @@ def attendance_check():
                 for subject_id in subject_ids:
                     ###attedance tableにインサート
                     for i, student in enumerate(id_list):
-                        print(student)
-                        print(subject_id[0])
                         cursor.execute("select exists(select * from student where subject_id = %s and student_id = %s)",(subject_id[0], student,))
                         exists = cursor.fetchone()
                         ### 
@@ -1491,14 +1488,9 @@ def attendance_check():
                         ### 一日一回づつしかできないようにしている
                         cursor.execute("select exists(select * from attendance where student_id = %s and attendance_day = %s and subject_id = %s and timetable = %s)",(student, date, subject_id[0],timetable,))
                         exists3 = cursor.fetchone()
-                        print(exists)
-                        print(exists2)
-                        print(exists3)
                         if exists[0] == True and exists2[0] == True and exists3[0] == False:
                             cursor.execute("insert into attendance(student_id, attendance, attendance_day, subject_id, timetable) values(%s, %s, %s, %s, %s)",(student, attendance_list[i], date,subject_id[0], timetable)) 
                             ### student table のupdate
-                            print(subject_id[0])
-                            print(student)
                             if attendance_list[i] == "出席":
                                 cursor.execute("update student set total_attend = total_attend + 1,total_lessons = total_lessons + 1 where student_id = %s and subject_id = %s",(student, subject_id[0],))
                             elif attendance_list[i] == "欠席":
