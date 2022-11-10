@@ -10,8 +10,10 @@
 </head>
 <body>
   <div class="container">
-    <form action="/login" method="POST">
-        <h2>システムマネジメントサービス<br>ログイン画面</h2>
+    <form action="/login" method="POST" name="login">
+        <div class="headline">
+          <h2>システムマネジメントサービス<br>ログイン画面</h2>
+        </div>
         {{ params.msg }}
         <div class="mb-3">
             <label for="ID" class="form-label">ID</label>
@@ -21,7 +23,7 @@
             <label for="passwd" class="form-label">password</label>
             <input type="password" name="password" class="form-control" placeholder="password" required>
         </div>
-        <button type="submit" class="btn btn-primary">ログイン</button>
+        <a href="javascript:login.submit()" class="bn3637 bn36">ログイン</a>
     </form>
   </div>
 </body>

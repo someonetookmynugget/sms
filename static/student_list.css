@@ -165,7 +165,8 @@ dialog:not(:target):not([opens]) {
     color: #e2dedb;
   } */
 
-/* homeアイコン */
+
+
 
 
 
@@ -186,48 +187,17 @@ p i{
 }
 
 
-/* tooltip --------------------------------------------------------- */
-.tooltip { /* 補足説明するテキストのスタイル */
-    position: relative;
-    cursor: pointer;
-    padding: 0 5px;
-    font-size: 3em;
-    font-weight:800;
-    color: #ff4646;
-    }
-    .description_top { /* ツールチップのスタイル */
-    width: 200px; /* 横幅 */
-    position: absolute;
-    left: 50%;
-    bottom: 80%; /* Y軸の位置 */
-    transform: translateX(-50%);
-    margin-bottom: 8px; /* テキストとの距離 */
-    padding: 8px;
-    border-radius: 10px; /* 角の丸み */
-    background-color: #666;
-    font-size: 0.7em;
-    color: #fff;
-    text-align: center;
-    visibility: hidden; /* ツールチップを非表示に */
-    opacity: 0; /* 不透明度を0％に */
-    z-index: 1;
-    transition: 0.5s all; /* マウスオーバー時のアニメーション速度 */
-    }
-    .tooltip:hover .description_top { /* マウスオーバー時のスタイル */
-    bottom: 100%; /* Y軸の位置 */
-    visibility: visible; /* ツールチップを表示 */
-    opacity: 1; /* 不透明度を100％に */
-    }
-    .flex{
-        display: flex;
-        justify-content: center;
-    }
-    .btn{
-        width: 200px;
-        margin: 20px;
-        color: white;
-        background-color:deepskyblue;
-    }
+
+.flex{
+    display: flex;
+    justify-content: center;
+}
+.btn{
+    width: 200px;
+    margin: 20px;
+    color: white;
+    background-color:deepskyblue;
+}
 
 
 
@@ -243,6 +213,7 @@ p i{
     color: #313131;
     transition: 0.3s ease-in-out;
     font-weight: 600;
+    
 }
 .button_line006 a:before,
 .button_line006 a:after {
@@ -301,21 +272,154 @@ a:hover{
 
 
 
-.headline{
-
-    margin-top: 60px;
-    text-align: center;
-    position: relative;
+.headline {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	font-size: 26px;
+	text-align: center;
+    font-size: xx-large;
 }
-.headline:before {
-    content:"";
+
+.headline::before,
+.headline::after {
+	content: '';
+	width: 70px;
+	height: 3px;
+	background-color: #000000;
+}
+
+.headline::before {
+	margin-right: 20px;
+}
+.headline::after {
+	margin-left: 20px;
+}
+
+
+
+
+
+
+/* tooltip --------------------------------------------------------- */
+.tooltip { /* 補足説明するテキストのスタイル */
+    position: relative;
+    cursor: pointer;
+    padding: 0 5px;
+    font-size: 3em;
+    font-weight:800;
+    color: #ff4646;
+    }
+    .description_top { /* ツールチップのスタイル */
+    width: 200px; /* 横幅 */
     position: absolute;
-    top: -50px;
     left: 50%;
-    transform: translateX(-50%) rotate(-8deg);
-    color: rgb(233, 108, 108, 0.4);
-    font-size: 60px;
-    font-family: luxus-brut, cursive;
-    font-style: italic;
-    z-index: -1;
+    bottom: 80%; /* Y軸の位置 */
+    transform: translateX(-50%);
+    margin-bottom: 8px; /* テキストとの距離 */
+    padding: 8px;
+    border-radius: 10px; /* 角の丸み */
+    background-color: #666;
+    font-size: 0.7em;
+    color: #fff;
+    text-align: center;
+    visibility: hidden; /* ツールチップを非表示に */
+    opacity: 0; /* 不透明度を0％に */
+    z-index: 1;
+    transition: 0.5s all; /* マウスオーバー時のアニメーション速度 */
+    }
+    .tooltip:hover .description_top { /* マウスオーバー時のスタイル */
+    bottom: 100%; /* Y軸の位置 */
+    visibility: visible; /* ツールチップを表示 */
+    opacity: 1; /* 不透明度を100％に */
+    }
+
+
+
+/* FontAwesome ----------------------------------------------------- */
+p i{
+    color:#66ff66;
+    
+}
+
+
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.text{
+    margin: 150px 0;
+}
+.text-center{
+    text-align: center;
+    size: 100px;
+}
+
+
+.submit{
+    font-size: 25px;
+}
+
+
+.contenta{
+    display: flex;
+    justify-content: space-between;
+}
+
+
+
+/* aタグ　ボタン */
+.bn3637 {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.4rem 1rem;
+    font-family: "Poppins", sans-serif;
+    font-weight: 700;
+    font-size: 18px;
+    text-align: center;
+    text-decoration: none;
+    color: #000000;
+    backface-visibility: hidden;
+    border: 0.2rem solid transparent;
+    border-radius: 3rem;
+    margin-bottom: 2%;
+  }
+  
+  .bn36 {
+    border-color: #000000;
+    transition: transform 0.2s cubic-bezier(0.235, 0, 0.05, 0.95);
+  }
+  
+  .bn36:hover {
+    transform: perspective(1px) scale3d(1.044, 1.044, 1) translateZ(0) !important;
+  }
+
+
+  /* homeアイコン */
+
+
+img{
+    width: 8%;
+    margin: auto;
+}
+
+.homeicon{
+    display: flex;
+}
+
+
+
+
+h3{
+    margin-top: 3%;
+    display: flex;
+    justify-content: center;
+}
+
+
+.content{
+    margin-top: 8%;
 }

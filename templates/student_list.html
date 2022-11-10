@@ -9,15 +9,20 @@
   <link href="static/student_list.css" rel="stylesheet">
 </head>
 <body>
+  <form action="/display_select" method="POST" name="display_select">
+    <input type="hidden" name="subject" value="{{params.subject_name}}">
+    <div class="contenta">
+      <!-- <a href="javascript:display_select.submit()" class="submit">戻る</a>  -->
+      <a href="/logout" class="submit">ログアウト</a>
+    </div>
+  </form>
         <div class="content">
           <div class="content2">
         
               <header>
 
-                <form action="/display_select" method="POST" name="display_select">
-                  <input type="hidden" name="subject" value="{{params.subject_name}}">
-                  <a href="javascript:display_select.submit()">戻る</a> 
-                </form>
+                
+
                 <!-- <a onclick="history.go('/display_select')" class="">戻る</a> -->
                 <h1 class="headline"><a name="subject">{{ params.subject_name }}の成績一覧</a></h1>
                 <h3 style="color: red;">{{ params.msg }}</h3>
@@ -82,7 +87,7 @@
                   <!-- <form action="/edit_info" method="POST" name="edit_info"> -->
                     <!-- <input type="hidden" name="subject" value="{{ params.subject_name }}"> -->
                         {% for student in params.students %}
-                        <form action="/edit_info" method="POST">
+                        <form action="/edit_info" method="POST" name="submit">
                         <input type="hidden" name="subject" value="{{ params.subject_name }}">
                         <!-- <input type="hidden" name="student_id" value="{{ student.student_id }}"> -->
                               <!-- <form action="/edit_info" method="POST" name="edit_info"> -->
@@ -112,7 +117,7 @@
                                         </td>
                                       
                                   {% endfor %}
-                                        <td>{{ student.attend_rate }}</td>
+                                        <td>{{ student.attendance_rate }}%</td>
                                         <td><textarea type="text" name="note">{{student.note}}</textarea></td>
                                         <td>  
                                           <select name="rate">
@@ -136,7 +141,7 @@
                         <!-- <button type="submit" class="btn btn-primary">保存</button> -->
                 </div>
               <!-- <a href="javascript:edit_info.submit()">保存</a> -->
-              <button type="submit" class="btn btn-primary">保存</button>
+              <a href="javascript:submit.submit()" class="bn3637 bn36">保存</a>
               </form>
               <form action="/edit_test_name" method="POST" name="edit_test_name">
               <div class="edit">
@@ -170,10 +175,12 @@
                   </div>   
                 </form>    
                 </table>
+        <div class="tooltip1">
+          <a href="/home" class="homeicon">
+            <img src="../static/home_img/home.png" alt="home">
+          </a>
         </div>
-        <div class="homeicon">
-          <a href="home"><p class="text text-center"><span class="tooltip"><i class="fa-solid fa-house"></i><span class="description_top">Homeへ</span></span></p></a>
-        </div>
+      </div>
 </body>
 
 </html>

@@ -1,15 +1,27 @@
+.content2{
+    display: flex;
+    justify-content: space-between;
+}
+
+
+
 a{
     text-decoration: none;
     color: #000000;
-    font-size: 100%;
+    font-size: large;
 }
 a:hover{
     color: #000000;
 }
 
-body{
-    font-size: large;
+.submit{
+    font-size: 25px;
 }
+
+label{
+    font-size: 20px;
+}
+
 
 /* aタグ　ボタン */
 .bn3637 {
@@ -40,7 +52,7 @@ body{
 
 
 
-  /* h1見出し */
+    /* h1見出し */
 
 .headline {
     display: flex;
@@ -48,7 +60,8 @@ body{
     align-items: center;
     font-size: 26px;
     text-align: center;
-      font-size: 30px;
+    font-size: 30px;
+
   }
   
   .headline::before,
@@ -67,5 +80,15 @@ body{
   }
   
 .container{
-  margin-top: 8%;
+  margin-top: 6%;
+}
+
+
+img{
+  width: 8%;
+  margin: auto;
+}
+
+.homeicon{
+  display: flex;
 }
