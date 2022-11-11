@@ -1622,7 +1622,7 @@ def student_register():
                 with connection.cursor() as cursor:
                     cursor.execute("select id from departments where department = %s",(request.form["department"],))
                     department_id = cursor.fetchall()
-                    cursor.execute("select id from majors where major = %s",(request.form["major"],))
+                    cursor.execute("select id from majors where major = %s and grade = %s",(request.form["major"],request.form["grade"],))
                     major_id = cursor.fetchall()
                     values = [[request.form["student_id"], request.form["name"],request.form["name_sub"], int(request.form["age"]), request.form["gender"],department_id[0][0],major_id[0][0], request.form["grade"],]]
                     sql = f'insert into student(student_id, name ,name_sub ,age, gender, department_id, major_id, grade) values (%s, %s, %s, %s, %s, %s, %s, %s)'
@@ -1841,8 +1841,7 @@ def subject_register():
                         cursor.execute("select id from departments where department = %s",(department,))
                         department_id = cursor.fetchone()
                         department_id = department_id[0]
-
-                        cursor.execute("select id from majors where major = %s", (major,))
+                        cursor.execute("select id from majors where major = %s and grade = %s", (major, grade))
                         major_id = cursor.fetchone()
                         major_id = major_id[0]
 
@@ -1890,7 +1889,7 @@ def student_class_assignment():
                             majors.append(major[0])
                     params["majors"] = majors
 
-                    cursor.execute("select id from majors where major = %s",(select_major,))
+                    cursor.execute("select id from majors where major = %s and grade = %s",(select_major,select_grade[0],))
                     major_id = cursor.fetchone()
 
                     ### 選択された内容をもとに授業を取得する
@@ -1912,7 +1911,7 @@ def student_class_assignment():
                     for student_name in student_names_db:
                         if student_name[0] not in student_names:
                             student_names.append(student_name[0])
-
+                    print(student_names)
 
                     params["student_names"] = student_names
                     params["select_grade"] = select_grade
@@ -1969,8 +1968,7 @@ def apply_student():
                         for major in majors_db:
                             if major[0] not in majors:
                                 majors.append(major[0])
-
-                        cursor.execute("select name from student where major_id = %s and grade = %s",(major_id[0], select_grade[0],))
+                        cursor.execute("select name from student where major_id = %s and grade = %s",(major_id[0][0], select_grade[0],))
                         student_names_db = cursor.fetchall()
                         for student_name in student_names_db:
                             if student_name[0] not in student_names:
