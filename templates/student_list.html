@@ -160,14 +160,13 @@
                                 <input type="hidden" name="current_test_name" value="{{value}}">
                                 <input type="hidden" name="subject" value="{{ params.subject_name }}">
                                 <input type="text" name="new_test_name" value="{{value}}" placeholder="名前を入力">
-                                <!-- <a href="javascript:edit_test_name.submit()">保存</a> -->
-                                <!-- <input type="submit" class="btn btn-primary" value="保存"> -->
-                              <!-- </form> -->
                                 {% endfor %}
                         </div>
                         <div class="modal-footer">
                           <a href="" data-bs-dismiss="modal">閉じる</a>
+                          {% if params.test_names %}
                           <a href="javascript:edit_test_name.submit()">保存</a>
+                          {% endif %}
                         </div>
                       </div>
                     </div>
