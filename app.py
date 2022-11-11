@@ -1319,7 +1319,7 @@ def teacher_classes_setting():
                         "subjects":subjects
                         }
                     except:
-                        print("something went wrong in teacher_classes_setting GET")
+                        print("エラー")
                     connection.commit()
                     cursor.close()
                     return render_template("teacher_list.html", params=params)
@@ -1342,21 +1342,24 @@ def teacher_classes_setting():
                             cursor.execute("select id from majors where grade = %s and major = %s order by id asc",(grade[0],major,))
                             major_id = cursor.fetchall()
                             # 専攻のIDがある授業を取得
-                            cursor.execute("select subject from subjects where major_id = %s order by id asc",(major_id[0],))
-                            subjects_db = cursor.fetchall()
-                            for subject in subjects_db:
-                                if subject[0] not in subjects:
-                                    subjects.append(subject[0])
-                            # 先生にすでに登録されている授業IDを取得
-                            cursor.execute("select subject_id from teacher where name = %s and major_id = %s",(teacher, major_id[0],))
-                            subject_ids = cursor.fetchall()
-                            checked_subjects[f"{major}"] = []
-                            for subject in subject_ids:
-                                cursor.execute("select subject from subjects where id = %s", (subject[0],))
+                            try:
+                                cursor.execute("select subject from subjects where major_id = %s order by id asc",(major_id[0],))
                                 subjects_db = cursor.fetchall()
-                                for subject2 in subjects_db:
-                                    if subject2[0] not in checked_subjects[f"{major}"]:
-                                        checked_subjects[f"{major}"].append(subject2[0])
+                                for subject in subjects_db:
+                                    if subject[0] not in subjects:
+                                        subjects.append(subject[0])
+                                # 先生にすでに登録されている授業IDを取得
+                                cursor.execute("select subject_id from teacher where name = %s and major_id = %s",(teacher, major_id[0],))
+                                subject_ids = cursor.fetchall()
+                                checked_subjects[f"{major}"] = []
+                                for subject in subject_ids:
+                                    cursor.execute("select subject from subjects where id = %s", (subject[0],))
+                                    subjects_db = cursor.fetchall()
+                                    for subject2 in subjects_db:
+                                        if subject2[0] not in checked_subjects[f"{major}"]:
+                                            checked_subjects[f"{major}"].append(subject2[0])
+                            except:
+                                msg = "エラー"
                         except psycopg2.errors.InvalidTextRepresentation as e:
                             msg = "講師、学年、専攻を選択してください"
 
