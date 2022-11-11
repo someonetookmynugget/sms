@@ -115,6 +115,9 @@ label{
 html,body{
     overflow: hidden;
 }
+header{
+    margin-bottom: 80px;
+}
 
 .tbl{
     width: 100%;
@@ -146,9 +149,10 @@ html,body{
 }
 .student-container{
     width: 100%;
+    margin-bottom: 30px;
 }
 hr {
     padding: 0;
-    margin: 0;
+    margin: 0;   
 }
 

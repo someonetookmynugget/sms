@@ -21,7 +21,7 @@
         <form action="/attendance_check" method="POST" name="attendance_check">
             <input type="hidden" name="subject" value="{{params.subject}}">
             <div class="student-container">
-                <hr>
+                <hr size="4px">
                 {% for student in params.student_list %}
                 <input type="hidden" name="student_id" value="{{student.student_id}}">
                 <input type="hidden" name="name" value="{{student.name}}">
@@ -43,7 +43,7 @@
                         <label class="label label-5" for="left_early">早退</label>
                     </div>
                 </div>
-                <hr>
+                <hr size="4px">
                 {%endfor%}
             </div>
             <div class="mb-3">
