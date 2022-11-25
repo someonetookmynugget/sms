@@ -26,12 +26,15 @@
                 <!-- <a onclick="history.go('/display_select')" class="">戻る</a> -->
                 <h1 class="headline"><a name="subject">{{ params.subject_name }}の成績一覧</a></h1>
                 <h3 style="color: red;">{{ params.msg }}</h3>
-
                 <div class="flex">
                 <p class="button_line006"><a data-bs-toggle="modal" data-bs-target="#addtest" href="#addtest">
                   テスト項目を追加
                 </a></p>
-                      
+                <form action="/download_score" method="POST" name="download">
+                  <input type="hidden" name="subject" value="{{ params.subject_name }}">
+                  <p class="button_line006"><a href="javascript:download.submit()">CSVファイルでダウンロード</a></p>
+                </form>
+                
                 <!-- Modal -->
                 <form action="/add_test" method="POST" name="add_test">
                 <div class="modal fade" id="addtest" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">

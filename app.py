@@ -33,7 +33,6 @@ connection = psycopg2.connect(host='localhost',
                              user='postgres',
                              password='apple2224',
                              database='testdb')
-
 # ログイン認証
 session = {"loggedin": None,
             "username": "",
@@ -1269,7 +1268,6 @@ def home():
             return render_template("home.html", params=params)
     return redirect(url_for("login"))
     
-
 @app.route("/teacher_classes_setting", methods=["POST", "GET"])
 def teacher_classes_setting():
     if session["loggedin"] == True:
@@ -1277,9 +1275,9 @@ def teacher_classes_setting():
         select_grade = "学年選択"
         select_teacher = "講師選択"
         select_major = "専攻選択"
-        msg = ""
         teachers = []
         majors = []
+        msg = ""
         if request.method == "GET":
             checked_subjects = {}
             subjects = []
@@ -1320,9 +1318,9 @@ def teacher_classes_setting():
                         }
                     except:
                         print("エラー")
-                    connection.commit()
-                    cursor.close()
-                    return render_template("teacher_list.html", params=params)
+                connection.commit()
+            cursor.close()
+            return render_template("teacher_list.html", params=params)
         if request.method == "POST":
             checked_subjects = {}
             subjects = []
@@ -1330,19 +1328,22 @@ def teacher_classes_setting():
             grade = request.form["grade"]
             teacher = request.form["teacher"]
             checked_subjects = {}
-            with connection:
-                with connection.cursor() as cursor:
-                    if major != "0" and grade != "0"and teacher != "0":
-
-                        select_grade = grade
-                        select_major = major 
-                        select_teacher = teacher
-                        try:
-                        # 専攻のIDを取得
+            if major != "0" and grade != "0"and teacher != "0":
+                select_grade = grade
+                select_major = major 
+                select_teacher = teacher
+                try:
+                    with connection:
+                        with connection.cursor() as cursor:
+                # 専攻のIDを取得
                             cursor.execute("select id from majors where grade = %s and major = %s order by id asc",(grade[0],major,))
                             major_id = cursor.fetchall()
                             # 専攻のIDがある授業を取得
-                            try:
+                        connection.commit()
+                    cursor.close()
+                    try:
+                        with connection:
+                            with connection.cursor() as cursor:
                                 cursor.execute("select subject from subjects where major_id = %s order by id asc",(major_id[0],))
                                 subjects_db = cursor.fetchall()
                                 for subject in subjects_db:
@@ -1358,41 +1359,89 @@ def teacher_classes_setting():
                                     for subject2 in subjects_db:
                                         if subject2[0] not in checked_subjects[f"{major}"]:
                                             checked_subjects[f"{major}"].append(subject2[0])
-                            except:
-                                msg = "エラー"
-                        except psycopg2.errors.InvalidTextRepresentation as e:
-                            msg = "講師、学年、専攻を選択してください"
-
-                    else:
-                        msg = "選択されていない項目があります"
-                    try:
-                        # 講師を取得
-                        cursor.execute("select name from teacher order by id asc")
-                        teachers_db = cursor.fetchall()
-                        for teacher_db in teachers_db:
-                            if teacher_db[0] not in teachers:
-                                teachers.append(teacher_db[0])
-
-                        # 選考の取得
-                        cursor.execute("select major from majors order by id asc")
-                        majors_db = cursor.fetchall()
-                        for m_d in majors_db:
-                            if m_d[0] not in majors:
-                                majors.append(m_d[0])
-
+                            connection.commit()
+                        cursor.close()    
                     except:
-                        print("エラー")
-
-                    params={
-                        "teachers": teachers, #dbから講師一覧
-                        "majors":majors,
-                        "select_teacher" : select_teacher,
-                        "select_grade" : select_grade,
-                        "select_major" : select_major,
-                        "msg": msg,
-                        "subjects":subjects,
-                        "checked_subjects" : checked_subjects
-                        }
+                        with connection:
+                            with connection.cursor() as cursor:
+                                teachers = []
+                                majors = []
+                                params = {}
+                                msg = "講師、学年、専攻を選択してください"
+                                cursor.execute("select name from teacher order by id asc")
+                                teachers_db = cursor.fetchall()
+                                for teacher in teachers_db:
+                                    if teacher[0] not in teachers:
+                                        teachers.append(teacher[0])
+                                # 選考の取得
+                                cursor.execute("select major from majors order by id asc")
+                                majors_db = cursor.fetchall()
+                                for major in majors_db:
+                                    if major[0] not in majors:
+                                        majors.append(major[0])
+                                params["teachers"] = teachers
+                                params["majors"] = majors
+                                params["msg"] = msg
+                                params["select_grade"] = select_grade
+                                params["select_teacher"] = select_teacher
+                                params["select_major"] = select_major
+                            connection.commit()
+                        cursor.close()
+                        return render_template("teacher_list.html", params=params)
+                except psycopg2.errors.InvalidTextRepresentation as e:
+                    with connection:
+                        with connection.cursor() as cursor:
+                            teachers = []
+                            majors = []
+                            params = {}
+                            msg = "講師、学年、専攻を選択してください"
+                            cursor.execute("select name from teacher order by id asc")
+                            teachers_db = cursor.fetchall()
+                            for teacher in teachers_db:
+                                if teacher[0] not in teachers:
+                                    teachers.append(teacher[0])
+                            # 選考の取得
+                            cursor.execute("select major from majors order by id asc")
+                            majors_db = cursor.fetchall()
+                            for major in majors_db:
+                                if major[0] not in majors:
+                                    majors.append(major[0])
+                            params["teachers"] = teachers
+                            params["majors"] = majors
+                            params["msg"] = msg
+                            params["select_grade"] = select_grade
+                            params["select_teacher"] = select_teacher
+                            params["select_major"] = select_major
+                        connection.commit()
+                    cursor.close()
+                    return render_template("teacher_list.html", params=params)
+            else:
+                msg = "選択されていない項目があります"
+            try:
+                # 講師を取得
+                cursor.execute("select name from teacher order by id asc")
+                teachers_db = cursor.fetchall()
+                for teacher_db in teachers_db:
+                    if teacher_db[0] not in teachers:
+                        teachers.append(teacher_db[0])
+                # 選考の取得
+                cursor.execute("select major from majors order by id asc")
+                majors_db = cursor.fetchall()
+                for m_d in majors_db:
+                    if m_d[0] not in majors:
+                        majors.append(m_d[0])
+            except:
+                print("エラー")
+            params={
+                "teachers": teachers, #dbから講師一覧
+                "majors":majors,
+                "select_teacher" : select_teacher,
+                "select_grade" : select_grade,
+                "select_major" : select_major,
+                "msg": msg,
+                "subjects":subjects,
+                "checked_subjects" : checked_subjects
+                }
             connection.commit()
             cursor.close()
             return render_template("teacher_list.html", params=params)
@@ -2115,5 +2164,15 @@ def apply_student_done():
                     }
         return render_template("student_class_assignment.html", params=params)
     return redirect(url_for("login"))
+
+@app.route("/download_score", methods=["POST","GET"])
+def download_score():
+    if request.method == "POST":
+        subject = request.form["subject"]
+        print(subject)  
+        return redirect()
+
+
+
 if __name__ == "__main__":
     app.run(port=12345, debug=True) # 12345でerrorがでたら8000にする
