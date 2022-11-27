@@ -1431,7 +1431,32 @@ def teacher_classes_setting():
                     if m_d[0] not in majors:
                         majors.append(m_d[0])
             except:
-                print("エラー")
+                    with connection:
+                        with connection.cursor() as cursor:
+                            teachers = []
+                            majors = []
+                            params = {}
+                            msg = "講師、学年、専攻を選択してください"
+                            cursor.execute("select name from teacher order by id asc")
+                            teachers_db = cursor.fetchall()
+                            for teacher in teachers_db:
+                                if teacher[0] not in teachers:
+                                    teachers.append(teacher[0])
+                            # 選考の取得
+                            cursor.execute("select major from majors order by id asc")
+                            majors_db = cursor.fetchall()
+                            for major in majors_db:
+                                if major[0] not in majors:
+                                    majors.append(major[0])
+                            params["teachers"] = teachers
+                            params["majors"] = majors
+                            params["msg"] = msg
+                            params["select_grade"] = select_grade
+                            params["select_teacher"] = select_teacher
+                            params["select_major"] = select_major
+                        connection.commit()
+                    cursor.close()
+                    return render_template("teacher_list.html", params=params)
             params={
                 "teachers": teachers, #dbから講師一覧
                 "majors":majors,
