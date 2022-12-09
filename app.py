@@ -1,5 +1,8 @@
 
-
+# from builtins import EncodingWarning
+from werkzeug.datastructures import FileStorage
+from cgi import FieldStorage
+import openpyxl
 from datetime import datetime
 import datetime
 from operator import iand
@@ -34,37 +37,18 @@ connection = psycopg2.connect(host='localhost',
                              password='apple2224',
                              database='testdb')
 # ログイン認証
-session = {"loggedin": None,
-            "username": "",
-            "user_id": ""
-            }
+session = {"loggedin": None, "username": "", "user_id": ""}
 
 @app.route('/register', methods=["GET", "POST"])
 def register():
     if session["loggedin"] == True:
         if request.method=="GET":
             # パラメータの設定
-            params = {
-                "msg": "",
-                "ID": "",
-                "name": "",
-                "name_sub":"",
-                "age":"",
-                "password":"" ,
-                "password2":"",
-            }
+            params = {"msg": "","ID": "","name": "","name_sub":"","age":"","password":"" ,"password2":"",}
             return render_template("register.html",params=params)
         elif request.method=="POST":
             # パラメータの設定
-            params = {
-                "msg": "",
-                "ID": request.form["ID"],
-                "name": request.form["teacher_name"],
-                "name_sub": request.form["name_sub"],
-                "age": request.form["age"],
-                "password": request.form["password"],
-                "password2": request.form["password2"]
-            }
+            params = {"msg": "","ID": request.form["ID"],"name": request.form["teacher_name"],"name_sub": request.form["name_sub"],"age": request.form["age"],"password": request.form["password"],"password2": request.form["password2"]}
             try:
                 if len(str(request.form["ID"])) != 6 and len(str(request.form["password"])) != 4:
                     params["msg"] = "講師番号は数字6桁、パスワードは数字４桁に設定してください"
@@ -98,9 +82,7 @@ def register():
                         id = int(request.form["ID"])
                     
                     password = request.form["password"].encode("utf-8")
-
                     salt = bcrypt.gensalt()
-
                     hashed = bcrypt.hashpw(password, salt)
                     password = hashed.decode("utf-8")
             except:
@@ -127,6 +109,8 @@ def register():
             cursor.close()
         return render_template('register.html', params=params)
     return redirect(url_for("login"))
+
+
 @app.route("/")
 def access():
     return redirect(url_for("login"))
@@ -135,18 +119,12 @@ def access():
 def login():
     if request.method=="GET":
         # パラメータの設定
-        params = {
-            "msg": ""
-        }
+        params = {"msg": ""}
         return render_template("login.html", params=params)
     if request.method=="POST":
         # パラメータの設定
         flag = False
-        params = {
-            "ID": request.form["ID"],
-            "password": request.form["password"],
-            "msg": "ログインが完了しました"
-        }
+        params = {"ID": request.form["ID"],"password": request.form["password"],"msg": "ログインが完了しました"}
         # データベースに接続
         with connection:
             with connection.cursor() as cursor:
@@ -155,27 +133,15 @@ def login():
                     #teacher_id と passwordを持ってkるう
                     cursor.execute("select password from teacher where teacher_id = %s",(request.form["ID"],))
                     try:
-                        password_record = cursor.fetchone()
-                        password_record = password_record[0]
-                        password_record = password_record.encode("utf-8")
+                        password_record = cursor.fetchone()[0].encode("utf-8")
                         password = request.form["password"].encode("utf-8")
                         if bcrypt.checkpw(password, password_record):
                             cursor.execute("select * from teacher where teacher_id = %s and password = %s", (params["ID"], password_record.decode("utf-8"),))
                             rows = cursor.fetchall()
-                            id = rows[0][1]
-                            password = rows[0][-1]
-                            name = rows[0][2]
-                            # IDとPASSWORDが一致した場合
+                            id, password, name = rows[0][1], rows[0][-1], rows[0][2]
                             # ログイン認証
-                            session["loggedin"] = True
-                            session["username"] = name
-                            session["user_id"] = id
-                            params = {
-                                "ID": request.form["ID"],
-                                "password": request.form["password"],
-                                "msg": "ログインが完了しました",
-                                "user": session["user_id"]
-                            }
+                            session["loggedin"], session["username"], session["user_id"] = True, name, id
+                            params = {"ID": request.form["ID"],"password": request.form["password"],"msg": "ログインが完了しました","user": session["user_id"]}
                             if session["user_id"] == "000000":
                                 return render_template("home.html", params=params)
                             else:
@@ -207,13 +173,11 @@ def login():
 @app.route("/logout")
 def logout():
     # セッションの初期化
-    session["loggedin"] = None
-    session["user_id"] = None
-    session["username"] = None
-    params = {
-        "msg":""
-    }
+    session["loggedin"], session["user_id"], session["username"] = None, None, None
+    params = {"msg":""}
     return render_template("login.html",params=params)
+
+
 @app.route("/student_list", methods=["GET", "POST"])
 def student_list():
     # if session["loggedin"] == True:
@@ -274,51 +238,31 @@ def student_list():
                                 attendance_rate = (total_attendance / total_lessons) * 100
                                 attendance_rate = round(attendance_rate, 2)
                                 attendance_rate_list.append(attendance_rate)
-                            else:
-                                pass
+                            # else:
+                            #     pass
 
                             
                         for i, row in enumerate(students):
-                            student_id = row[0]
-                            student_name = row[1]
-                            if row[2] == None:
-                                student_note = ""
-                            else:
-                                student_note = row[2]
-                            if row[3] == None:
-                                student_rate = ""
-                            else:
-                                student_rate = row[3]
+                            student_id, student_name = row[0], row[1]
+                            student_note = "" if row[2] == None else row[2]
+                            student_rate = "" if row[3] == None else row[3]
+
                             if student_name not in valid:
                                 students_list.append({"test":{}})
-                                students_list[len(students_list)-1]["name"] = student_name
-                                students_list[len(students_list)-1]["student_id"] = student_id
-                                students_list[len(students_list)-1]["rate"] = student_rate
-                                students_list[len(students_list)-1]["note"] = student_note
-                                students_list[len(students_list)-1]["attendance_rate"] = attendance_rate_list[len(students_list)-1]
+                                students_list[len(students_list)-1]["name"], students_list[len(students_list)-1]["student_id"], students_list[len(students_list)-1]["rate"], students_list[len(students_list)-1]["note"], students_list[len(students_list)-1]["attendance_rate"] = student_name, student_id, student_rate, student_note, attendance_rate_list[len(students_list)-1]
                                 for row2 in test:
-                                    test_name = row2[0]
-                                    test_score = row2[1]
-
+                                    test_name, test_score = row2[0], row2[1]
                                     if row2[2] == students_list[len(students_list)-1]["student_id"]:
                                         students_list[len(students_list)-1]["test"][f"{test_name}"] = test_score
 
-                            
                     except:
                         msg = "エラー"
 
-            params = {
-                "students": students_list,
-                "test_names": test_names,
-                "msg":msg,
-                "subject_name":subject
-            }
+            params = {"students": students_list,"test_names": test_names,"msg":msg,"subject_name":subject}
             connection.commit()
             cursor.close()
-            if session["user_id"] == "000000":
-                return render_template("student_list_admin.html", params=params)
-            else:
-                return render_template("student_list.html", params=params)
+            path = "student_list_admin.html" if session["user_id"] == "000000" else "student_list.html"
+            return render_template(path, params=params)
 
         if request.method=="POST":
             test_names = {}
@@ -338,13 +282,13 @@ def student_list():
                         for i in tests:
                             if i not in aaa:
                                 aaa.append(i)
+
                         for i, test in enumerate(aaa):
                             test_names[f"test{i+1}"] = test[0]
                         cursor.execute("select id from subjects where subject = %s order by id asc",(request.form["subject"],))
                         subject_ids = cursor.fetchall()
                         for id in subject_ids:
-                                    #データベースから値を選択
-
+                            #データベースから値を選択
                             try:
                                 cursor.execute("select student_id, name, note, rate FROM student where subject_id = %s order by id asc", (id[0],))
                                 student_db = cursor.fetchall()
@@ -353,7 +297,6 @@ def student_list():
                             for student in student_db:
                                 if student not in students:
                                     students.append(student)
-
 
                             cursor.execute("SELECT test_name, test_score, student_id FROM test where subject = %s order by id asc",(subject,))
                             test = cursor.fetchall()
@@ -385,16 +328,10 @@ def student_list():
                                 attendance_rate_list.append(0)
                         ###
                         for i, row in enumerate(students):
-                            student_id = row[0]
-                            student_name = row[1]
-                            if row[2] == None:
-                                student_note = ""
-                            else:
-                                student_note = row[2]
-                            if row[3] == None:
-                                student_rate = ""
-                            else:
-                                student_rate = row[3]
+                            student_id,student_name = row[0],row[1]
+                            student_note = "" if row[2] == None else row[2]
+                            student_rate = "" if row[3] == None else row[3]
+
                             if student_name not in valid:
                                 valid.append(student_name)
                                 students_list.append({"test":{}})
@@ -403,6 +340,7 @@ def student_list():
                                 students_list[len(students_list)-1]["rate"] = student_rate
                                 students_list[len(students_list)-1]["note"] = student_note
                                 students_list[len(students_list)-1]["attendance_rate"] = attendance_rate_list[len(students_list)-1]
+
                                 for row2 in test:
                                     test_name = row2[0]
                                     test_score = row2[1]
@@ -414,18 +352,11 @@ def student_list():
                             
                     except:
                         msg = "エラー"
-            params = {
-                "students": students_list,
-                "test_names": test_names,
-                "msg":msg,
-                "subject_name":subject
-            }
+            params = {"students": students_list,"test_names": test_names,"msg":msg,"subject_name":subject}
             connection.commit()
             cursor.close()
-            if session["user_id"] == "000000":
-                return render_template("student_list_admin.html", params=params)
-            else:
-                return render_template("student_list.html", params=params)             
+            path = "student_list_admin.html" if session["user_id"] == "000000" else "student_list.html"
+            return render_template(path, params=params)            
 
     # return redirect(url_for("login"))  
 
@@ -746,8 +677,6 @@ def edit_info():
                             pass
                 connection.commit()
             cursor.close()
-
-
             with connection:
                 with connection.cursor() as cursor:
                     try:
@@ -1062,17 +991,7 @@ def graph_attendance(student_id):
                                 if subject_name[0] not in subject_list:
                                     subject_list.append(subject_name[0])
             css = "../static/student_detail.css"
-            params = {
-                "student_id": student_id,
-                "student_name":student_name,
-                "department_name":department_name,
-                "major_name":major_name,
-                "age":age,
-                "class_name":class_name,
-                "gender":gender,
-                "total_unit":total_unit,
-                "subject_list":subject_list
-            }      
+            params = {"student_id": student_id,"student_name":student_name,"department_name":department_name,"major_name":major_name,"age":age,"class_name":class_name,"gender":gender,"total_unit":total_unit,"subject_list":subject_list}      
             params["css"] = css
             params["image"] = path
             params["test_names"] = subject_name_list
@@ -1140,19 +1059,7 @@ def view_profile(student_id):
                 connection.commit()
             cursor.close() 
             css = "../static/student_detail.css"
-            params = {
-                "student_id": student_id,
-                "student_name":student_name,
-                "department_name":department_name,
-                "major_name":major_name,
-                "age":age,
-                "class_name":class_name,
-                "gender":gender,
-                "total_unit":total_unit,
-                "subject_list":subject_list,
-                 "test_names": test_names,
-                 "css":css
-            }
+            params = {"student_id": student_id,"student_name":student_name,"department_name":department_name,"major_name":major_name,"age":age,"class_name":class_name,"gender":gender,"total_unit":total_unit,"subject_list":subject_list, "test_names": test_names, "css":css}
             return render_template("student_detail.html", params=params)
         return redirect(url_for("login"))   
 @app.route("/view_profile/<student_id>/score_graph_<subject>",methods=["GET","POST"])                      
@@ -1237,20 +1144,7 @@ def histogram(student_id, subject):
             cursor.close()
             # パラメータの  
             css = "../static/student_detail.css"
-            params = {
-                "student_id": student_id,
-                "student_name":student_name,
-                "department_name":department_name,
-                "major_name":major_name,
-                "age":age,
-                "class_name":class_name,
-                "gender":gender,
-                "subject":subject,
-                "subject_list":subject_list,
-                "total_unit":total_unit,
-                "css":css
-
-            }         
+            params = {"student_id": student_id,"student_name":student_name,"department_name":department_name,"major_name":major_name,"age":age,"class_name":class_name,"gender":gender,"subject":subject,"subject_list":subject_list,"total_unit":total_unit,"css":css}         
             params["image"] = path
             params["test_names"] = name_label
             return render_template("student_detail.html", params=params)
@@ -1260,9 +1154,7 @@ def histogram(student_id, subject):
 def home():
     if session["loggedin"] == True:
         if request.method=="GET":
-            params = {
-              "user": session["user_id"]
-            }
+            params = {"user": session["user_id"]}
             return render_template("home.html", params=params)
         if request.method=="POST":
             return render_template("home.html", params=params)
@@ -1306,16 +1198,7 @@ def teacher_classes_setting():
                             if subject[0] not in subjects:
                                 subjects.append(subject[0])
                         #　パラメーターの設定
-                        params={
-                        "teachers": teachers, #dbから講師一覧
-                        "majors":majors,
-                        "select_teacher" : select_teacher,
-                        "select_grade" : select_grade,
-                        "select_major" : select_major,
-                        "checked_subjects": checked_subjects,
-                        "msg": msg,
-                        "subjects":subjects
-                        }
+                        params={"teachers": teachers, "majors":majors,"select_teacher" : select_teacher,"select_grade" : select_grade,"select_major" : select_major,"checked_subjects": checked_subjects,"msg": msg,"subjects":subjects}
                     except:
                         print("エラー")
                 connection.commit()
@@ -1457,16 +1340,7 @@ def teacher_classes_setting():
                         connection.commit()
                     cursor.close()
                     return render_template("teacher_list.html", params=params)
-            params={
-                "teachers": teachers, #dbから講師一覧
-                "majors":majors,
-                "select_teacher" : select_teacher,
-                "select_grade" : select_grade,
-                "select_major" : select_major,
-                "msg": msg,
-                "subjects":subjects,
-                "checked_subjects" : checked_subjects
-                }
+            params={"teachers": teachers, "majors":majors,"select_teacher" : select_teacher,"select_grade" : select_grade,"select_major" : select_major,"msg": msg,"subjects":subjects,"checked_subjects" : checked_subjects}
             connection.commit()
             cursor.close()
             return render_template("teacher_list.html", params=params)
@@ -1604,16 +1478,7 @@ def form_check():
                             majors.append(major[0])
 
                     #　パラメーターの設定
-                    params={
-                    "teachers": teachers,
-                    "majors":majors,
-                    "select_teacher" : select_teacher,
-                    "select_grade" : select_grade,
-                    "select_major" : select_major,
-                    "msg": msg,
-                    "subjects":subjects,
-                    "checked_subjects" : checked_subjects
-                    }
+                    params={"teachers": teachers,"majors":majors,"select_teacher" : select_teacher,"select_grade" : select_grade,"select_major" : select_major,"msg": msg,"subjects":subjects,"checked_subjects" : checked_subjects}
             connection.commit()
             cursor.close()
             return render_template("teacher_list.html", params=params)
@@ -1623,19 +1488,7 @@ def form_check():
 @app.route("/student_register", methods=["POST", "GET"])
 def student_register():
     if session["loggedin"] == True:
-        params = {
-            "msg":"",
-            "student_id":"",
-            "name":"",
-            "name_sub":"",
-            "age":"",
-            "department":"",
-            "major":"",
-            "departments_list": [],
-            "select_department":"学科選択",
-            "majors_list": [],
-            "select_major":"専攻選択"
-        }
+        params = {"msg":"","student_id":"","name":"","name_sub":"","age":"","department":"","major":"","departments_list": [],"select_department":"学科選択","majors_list": [],"select_major":"専攻選択"}
         departments_list = []
         majors_list = []
         with connection:
@@ -1741,10 +1594,7 @@ def attendance_check():
             except:
                 pass
             
-            params = {
-                "subject":subject,
-                "today":d_today
-            }
+            params = {"subject":subject,"today":d_today}
             valid = []
             with connection:
                 with connection.cursor() as cursor:
@@ -1834,9 +1684,7 @@ def subject_select():
                     except:
                         print("EXCEPT")
 
-            params = {
-                "subject_list": subject_list
-            }
+            params = {"subject_list": subject_list}
             connection.commit()
             cursor.close()
             return render_template("subject_select.html", params=params)
@@ -1862,14 +1710,7 @@ def display_select():
 @app.route("/subject_register",methods=["POST","GET"])
 def subject_register():
     if session["loggedin"] == True:
-        params = {
-            "department":"",
-            "major":"",
-            "departments_list": [],
-            "select_department":"学科選択",
-            "majors_list": [],
-            "select_major":"専攻選択"
-        }
+        params = {"department":"","major":"","departments_list": [],"select_department":"学科選択","majors_list": [],"select_major":"専攻選択"}
         departments_list = []
         majors_list = []
         with connection:
@@ -1932,11 +1773,7 @@ def subject_register():
 @app.route("/student_class_assignment", methods=["POST", "GET"])
 def student_class_assignment():
     if session["loggedin"] == True:
-        params={
-            "select_grade": "学年選択",
-            "select_major": "専攻選択",
-            "select_subject": "授業選択"
-        }
+        params={"select_grade": "学年選択","select_major": "専攻選択","select_subject": "授業選択"}
         if request.method=="GET":
             majors = []
             with connection:
@@ -2054,16 +1891,7 @@ def apply_student():
                         return redirect(url_for("student_class_assignment"))
                     #　パラメーターの設定
                     finally:
-                        params={
-                        "majors":majors,
-                        "select_grade" : select_grade,
-                        "select_major" : select_major,
-                        "select_subject": select_subject,
-                        "msg": msg,
-                        "subjects":subjects,
-                        "checked_name":checked_name,
-                        "student_names":student_names
-                        }
+                        params={"majors":majors,"select_grade" : select_grade,"select_major" : select_major,"select_subject": select_subject,"msg": msg,"subjects":subjects,"checked_name":checked_name,"student_names":student_names}
         return render_template("student_class_assignment.html", params=params)
     return redirect(url_for("login"))
 # 設定完了ボタン
@@ -2177,16 +2005,7 @@ def apply_student_done():
                                 student_names.append(student_name[0])
                     except:
                         return redirect(url_for("student_class_assignment"))
-                    params={
-                    "majors":majors,
-                    "select_grade" : select_grade,
-                    "select_major" : select_major,
-                    "select_subject": select_subject,
-                    "msg": msg,
-                    "subjects":subjects,
-                    "checked_name":checked_name,
-                    "student_names":student_names
-                    }
+                    params={"majors":majors,"select_grade" : select_grade,"select_major" : select_major,"select_subject": select_subject,"msg": msg,"subjects":subjects,"checked_name":checked_name,"student_names":student_names}
         return render_template("student_class_assignment.html", params=params)
     return redirect(url_for("login"))
 
@@ -2196,8 +2015,59 @@ def download_score():
         subject = request.form["subject"]
         print(subject)  
         return redirect()
+        
+@app.route("/student_register_csv", methods=["GET", "POST"])
+def test():
+    params = {"msg":"","student_id":"","name":"","name_sub":"","age":"","department":"","major":"","departments_list": [],"select_department":"学科選択","majors_list": [],"select_major":"専攻選択"}
+    departments_list = []
+    majors_list = []
+    with connection:
+            with connection.cursor() as cursor:
+                cursor.execute("select department from departments")
+                departments_db = cursor.fetchall()
+                for department_db in departments_db:
+                
+                    departments_list.append(department_db[0])
+                params["departments_list"] = departments_list
+                cursor.execute("select major from majors")
+                majors_db = cursor.fetchall()
+                for major_db in majors_db:
+                    if major_db[0] not in majors_list:
+                        majors_list.append(major_db[0])
+                params["majors_list"] = majors_list
+            connection.commit()
+    cursor.close()
+    if request.method == "POST":
+        data = request.files["test"]
+        if data.content_type == 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' or data.content_type == "application/vnd.ms-excel":
+            data = pd.read_excel(data).to_csv("data.csv", encoding="shift jis")
+            data = pd.read_csv("data.csv", encoding="shift jis")
+        else:
+            print("A")
+            data = pd.read_csv(data.filename, encoding="shift jis")
+            
+        try:
+            data["学籍番号"],data["名前"],data["フリガナ"],data["性別"],data["年齢"],data["学年"],data["学科"],data["専攻"]
 
-
-
+            for i, d in enumerate(data["学籍番号"].values):
+                student_id, name, name_sub, gender, age, grade, department, major = d, data["名前"].values[i],data["フリガナ"].values[i],data["性別"].values[i],data["年齢"].values[i],data["学年"].values[i],data["学科"].values[i],data["専攻"].values[i]
+                print(student_id, name)
+                with connection:
+                    with connection.cursor() as cursor:
+                        cursor.execute("select id from departments where department = %s",(department,))
+                        department_id = cursor.fetchall()
+                        cursor.execute("select id from majors where major = %s and grade = %s",(str(major), str(grade),))
+                        major_id = cursor.fetchall()
+                        values = [[str(student_id), name, name_sub, int(age), gender, department_id, major_id, int(grade)]]
+                        sql = f'insert into student(student_id, name ,name_sub ,age, gender, department_id, major_id, grade) values (%s, %s, %s, %s, %s, %s, %s)'
+                        cursor.executemany(sql, values)
+                    connection.commit()
+                connection.close()
+        except KeyError as e:
+            print(e, "というカラムがありません、項目名は学籍番号、名前、フリガナ、性別、年齢、学年、学科、専攻でお願いします。")
+        params["msg"] = "CSVでの登録に成功しました"
+        return render_template("student_register.html",params=params)
+    if request.method == "GET":
+        return render_template("student_register.html",params=params)
 if __name__ == "__main__":
     app.run(port=12345, debug=True) # 12345でerrorがでたら8000にする
