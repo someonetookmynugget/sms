@@ -220,9 +220,7 @@ def student_list():
                         subjects_ids = cursor.fetchall()
                         attendance_rate_list = []
                         for student in students:
-                            total_lessons = 0
-                            total_attendance = 0
-                            official_absence = 0
+                            total_lessons, total_attendance, official_absence = 0, 0, 0
                             for subject_id in subjects_ids:
                                 try:
                                     cursor.execute("select total_lessons, total_attend, official_absence from student where student_id = %s and subject_id = %s",(student[0], subject_id[0]))
@@ -238,8 +236,6 @@ def student_list():
                                 attendance_rate = (total_attendance / total_lessons) * 100
                                 attendance_rate = round(attendance_rate, 2)
                                 attendance_rate_list.append(attendance_rate)
-                            # else:
-                            #     pass
 
                             
                         for i, row in enumerate(students):
@@ -306,9 +302,7 @@ def student_list():
                         subjects_ids = cursor.fetchall()
                         attendance_rate_list = []
                         for student in students:
-                            total_lessons = 0
-                            total_attendance = 0
-                            official_absence = 0
+                            total_lessons, total_attendance, official_absence = 0, 0, 0
                             for subject_id in subjects_ids:
                                 try:
                                     cursor.execute("select total_lessons, total_attend, official_absence from student where student_id = %s and subject_id = %s",(student[0], subject_id[0]))
@@ -342,8 +336,7 @@ def student_list():
                                 students_list[len(students_list)-1]["attendance_rate"] = attendance_rate_list[len(students_list)-1]
 
                                 for row2 in test:
-                                    test_name = row2[0]
-                                    test_score = row2[1]
+                                    test_name, test_score = row2[0], row2[1]
 
                                     if row2[2] == students_list[len(students_list)-1]["student_id"]:
                                         students_list[len(students_list)-1]["test"][f"{test_name}"] = test_score
@@ -433,9 +426,7 @@ def add_test():
                         subjects_ids = cursor.fetchall()
                         attendance_rate_list = []
                         for student in students_rate:
-                            total_lessons = 0
-                            total_attendance = 0
-                            official_absence = 0
+                            total_lessons, total_attendance, official_absence = 0, 0, 0
                             for subject_id in subjects_ids:
                                 try:
                                     cursor.execute("select total_lessons, total_attend, official_absence from student where student_id = %s and subject_id = %s",(student[0], subject_id[0]))
@@ -550,9 +541,7 @@ def delete_test():
                         subjects_ids = cursor.fetchall()
                         attendance_rate_list = []
                         for student in students_rate:
-                            total_lessons = 0
-                            total_attendance = 0
-                            official_absence = 0
+                            total_lessons, total_attendance, official_absence = 0, 0, 0
                             for subject_id in subjects_ids:
                                 try:
                                     cursor.execute("select total_lessons, total_attend, official_absence from student where student_id = %s and subject_id = %s",(student[0], subject_id[0]))
@@ -706,9 +695,7 @@ def edit_info():
                         subjects_ids = cursor.fetchall()
                         attendance_rate_list = []
                         for student in students_rate:
-                            total_lessons = 0
-                            total_attendance = 0
-                            official_absence = 0
+                            total_lessons, total_attendance, official_absence = 0, 0, 0
                             for subject_id in subjects_ids:
                                 try:
                                     cursor.execute("select total_lessons, total_attend, official_absence from student where student_id = %s and subject_id = %s",(student[0], subject_id[0]))
@@ -825,9 +812,7 @@ def edit_test_name():
                         subjects_ids = cursor.fetchall()
                         attendance_rate_list = []
                         for student in students_rate:
-                            total_lessons = 0
-                            total_attendance = 0
-                            official_absence = 0
+                            total_lessons, total_attendance, official_absence = 0, 0, 0
                             for subject_id in subjects_ids:
                                 try:
                                     cursor.execute("select total_lessons, total_attend, official_absence from student where student_id = %s and subject_id = %s",(student[0], subject_id[0]))
@@ -2043,29 +2028,26 @@ def test():
             data = pd.read_excel(data).to_csv("data.csv", encoding="shift jis")
             data = pd.read_csv("data.csv", encoding="shift jis")
         else:
-            print("A")
             data = pd.read_csv(data.filename, encoding="shift jis")
             
         try:
             data["学籍番号"],data["名前"],data["フリガナ"],data["性別"],data["年齢"],data["学年"],data["学科"],data["専攻"]
-
-            for i, d in enumerate(data["学籍番号"].values):
-                student_id, name, name_sub, gender, age, grade, department, major = d, data["名前"].values[i],data["フリガナ"].values[i],data["性別"].values[i],data["年齢"].values[i],data["学年"].values[i],data["学科"].values[i],data["専攻"].values[i]
-                print(student_id, name)
-                with connection:
-                    with connection.cursor() as cursor:
+            with connection:
+                with connection.cursor() as cursor:
+                    for i, d in enumerate(data["学籍番号"].values):
+                        student_id, name, name_sub, gender, age, grade, department, major = d, data["名前"].values[i],data["フリガナ"].values[i],data["性別"].values[i],data["年齢"].values[i],data["学年"].values[i],data["学科"].values[i],data["専攻"].values[i]
+                        department = department + "科" if department[0] != "科" else department
+                        major = major[:-2] if major[-2:] == "専攻" else major
                         cursor.execute("select id from departments where department = %s",(department,))
                         department_id = cursor.fetchall()
                         cursor.execute("select id from majors where major = %s and grade = %s",(str(major), str(grade),))
                         major_id = cursor.fetchall()
-                        values = [[str(student_id), name, name_sub, int(age), gender, department_id, major_id, int(grade)]]
-                        sql = f'insert into student(student_id, name ,name_sub ,age, gender, department_id, major_id, grade) values (%s, %s, %s, %s, %s, %s, %s)'
-                        cursor.executemany(sql, values)
-                    connection.commit()
-                connection.close()
+                        cursor.execute(f'insert into student(student_id, name ,name_sub ,gender, age, department_id, major_id, grade) values (%s, %s, %s, %s, %s, %s, %s, %s);',(str(student_id), name, name_sub, gender,int(age), department_id[0][0], major_id[0][0], int(grade)))
+                connection.commit()
+            connection.close()
         except KeyError as e:
             print(e, "というカラムがありません、項目名は学籍番号、名前、フリガナ、性別、年齢、学年、学科、専攻でお願いします。")
-        params["msg"] = "CSVでの登録に成功しました"
+        params["msg"] = "エクセルでの登録に成功しました"
         return render_template("student_register.html",params=params)
     if request.method == "GET":
         return render_template("student_register.html",params=params)
