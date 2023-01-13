@@ -34,7 +34,7 @@ img.graph {
 	align-items: center;
 	font-size: 40px;
 	text-align: center;;
-  padding-bottom: 4%;
+  /* padding-bottom: 4%; */
 }
 
 .headline::before,

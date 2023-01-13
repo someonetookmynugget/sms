@@ -1144,7 +1144,12 @@ def home():
         if request.method=="POST":
             return render_template("home.html", params=params)
     return redirect(url_for("login"))
-    
+
+@app.route("/settings", methods=["GET", "POST"])
+def settings():
+    if request.method=="GET":
+        return render_template("settings.html")
+
 @app.route("/teacher_classes_setting", methods=["POST", "GET"])
 def teacher_classes_setting():
     if session["loggedin"] == True:
