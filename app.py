@@ -2056,5 +2056,24 @@ def test():
         return render_template("student_register.html",params=params)
     if request.method == "GET":
         return render_template("student_register.html",params=params)
+
+@app.route("/get_student_list",methods=["POST", "GET"])
+def get_student_list():
+    if request.method=="POST":
+        return
+    if request.method == "GET":
+        with connection:
+            with connection.cursor() as cursor:
+                cursor.execute("select student_id, name, name_sub, age, gender from student order by id asc")
+                test = cursor.fetchall()
+                student_list = []
+                for desc in test:
+                    if desc not in student_list:
+                        student_list.append(desc)
+            connection.commit()
+        cursor.close()
+        params={}
+        params["student_list"] = student_list
+        return render_template("get_student_list.html", params=params)
 if __name__ == "__main__":
     app.run(port=12345, debug=True) # 12345でerrorがでたら8000にする
