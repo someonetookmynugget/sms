@@ -35,7 +35,7 @@ app = Flask(__name__)
 connection = psycopg2.connect(host='localhost',
                              user='postgres',
                              password='apple2224',
-                             database='testdb')
+                             database='test')
 # ログイン認証
 session = {"loggedin": None, "username": "", "user_id": ""}
 
@@ -2007,7 +2007,7 @@ def download_score():
         return redirect()
         
 @app.route("/student_register_csv", methods=["GET", "POST"])
-def test():
+def student_register_csv():
     params = {"msg":"","student_id":"","name":"","name_sub":"","age":"","department":"","major":"","departments_list": [],"select_department":"学科選択","majors_list": [],"select_major":"専攻選択"}
     departments_list = []
     majors_list = []
@@ -2075,5 +2075,74 @@ def get_student_list():
         params={}
         params["student_list"] = student_list
         return render_template("get_student_list.html", params=params)
+
+# @app.route("/subject_register_csv", methods=["POST", "GET"])
+# def subject_register_csv():
+#     if session["loggedin"] == True:
+#         params = {"department":"","major":"","departments_list": [],"select_department":"学科選択","majors_list": [],"select_major":"専攻選択"}
+#         departments_list = []
+#         majors_list = []
+#         with connection:
+#             with connection.cursor() as cursor:
+#                 cursor.execute("select department from departments")
+#                 departments_db = cursor.fetchall()
+#                 for department_db in departments_db:
+                
+#                     departments_list.append(department_db[0])
+#                 params["departments_list"] = departments_list
+
+#                 cursor.execute("select major from majors")
+#                 majors_db = cursor.fetchall()
+#                 for major_db in majors_db:
+#                     if major_db[0] not in majors_list:
+#                         majors_list.append(major_db[0])
+#                 params["majors_list"] = majors_list
+#             connection.commit()
+#         cursor.close()
+#         if request.method == "GET":
+#             return render_template("subject_register.html",params=params)
+#         if request.method == "POST":
+#             data = request.files["test"]
+#             if  data.content_type == 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' or data.content_type == "application/vnd.ms-excel":
+#                 data = pd.read_excel(data).to_csv("data.csv", encoding="shift jis")
+#                 data = pd.read_csv("data.csv", encoding="shift jis")
+#             else:
+#                 data = pd.read_csv(data.filename, encoding="shift jis")
+#             try:
+#                 subject = data["授業名"]
+#                 unit = data["単位数"]
+#                 major = data["専攻"]
+#                 department = data["学科"]
+#                 timetable = data["時間割"]
+#                 grade = data["学年"]
+#                 dow = data["曜日"]
+
+#                 subject = subject + "(" + dow + " "
+#                 for i, timetable in enumerate(timetables):
+#                     if i != len(timetables)-1:
+#                         subject = subject + str(timetable) + "・"
+#                     else:
+#                         subject = subject + str(timetable)
+
+#                 subject = subject + "限)-" + str(grade) + "年"
+#                 with connection:
+#                     with connection.cursor() as cursor:
+#                         for timetable in timetables:
+#                             cursor.execute("select id from departments where department = %s",(department,))
+#                             department_id = cursor.fetchone()
+#                             department_id = department_id[0]
+#                             cursor.execute("select id from majors where major = %s and grade = %s", (major, grade))
+#                             major_id = cursor.fetchone()
+#                             major_id = major_id[0]
+
+
+#                             cursor.execute(f'insert into subjects(subject, department_id, major_id, unit, timetable, grade, dow) values (%s,%s,%s,%s,%s,%s,%s);',(subject, department_id,major_id,unit,timetable,grade,dow))
+#                             params["msg"] = "授業を追加しました"
+#                     connection.commit()
+#                 cursor.close()
+#                 return render_template("subject_register.html",params=params)
+#     return redirect(url_for("login"))
+
+
 if __name__ == "__main__":
     app.run(port=12345, debug=True) # 12345でerrorがでたら8000にする
