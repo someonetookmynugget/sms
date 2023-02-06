@@ -17,3 +17,12 @@ bootstrap https://getbootstrap.com/docs/5.0/getting-started/introduction/
     授業追加機能
     飛び級機能
 
+
+
+mr.maruyama
+000000
+0909
+
+ms.orita
+000713
+0713
