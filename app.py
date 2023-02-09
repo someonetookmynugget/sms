@@ -35,7 +35,7 @@ app = Flask(__name__)
 connection = psycopg2.connect(host='localhost',
                              user='postgres',
                              password='apple2224',
-                             database='test')
+                             database='testdb')
 # ログイン認証
 session = {"loggedin": None, "username": "", "user_id": ""}
 
@@ -2037,9 +2037,9 @@ def student_register_csv():
             
         try:
             data["学籍番号"],data["名前"],data["フリガナ"],data["性別"],data["年齢"],data["学年"],data["学科"],data["専攻"]
-            with connection:
-                with connection.cursor() as cursor:
-                    for i, d in enumerate(data["学籍番号"].values):
+            for i, d in enumerate(data["学籍番号"].values):
+                with connection:
+                    with connection.cursor() as cursor:
                         student_id, name, name_sub, gender, age, grade, department, major = d, data["名前"].values[i],data["フリガナ"].values[i],data["性別"].values[i],data["年齢"].values[i],data["学年"].values[i],data["学科"].values[i],data["専攻"].values[i]
                         department = department + "科" if department[0] != "科" else department
                         major = major[:-2] if major[-2:] == "専攻" else major
@@ -2048,13 +2048,13 @@ def student_register_csv():
                         cursor.execute("select id from majors where major = %s and grade = %s",(str(major), str(grade),))
                         major_id = cursor.fetchall()
                         cursor.execute(f'insert into student(student_id, name ,name_sub ,gender, age, department_id, major_id, grade) values (%s, %s, %s, %s, %s, %s, %s, %s);',(str(student_id), name, name_sub, gender,int(age), department_id[0][0], major_id[0][0], int(grade)))
-                connection.commit()
-            connection.close()
         except KeyError as e:
             print(e, "というカラムがありません、項目名は学籍番号、名前、フリガナ、性別、年齢、学年、学科、専攻でお願いします。")
         params["msg"] = "エクセルでの登録に成功しました"
+
         return render_template("student_register.html",params=params)
     if request.method == "GET":
+
         return render_template("student_register.html",params=params)
 
 @app.route("/get_student_list",methods=["POST", "GET"])
